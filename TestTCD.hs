@@ -58,9 +58,9 @@ main = do
         cn = fromMaybe 0 $ findIndex (/= 0.0) amplitudes
 
     putStrLn "getEquilibriums:"
-    print =<< getEquilibriums cn
+    print =<< (map realToFrac <$> getEquilibriums cn :: IO [Float])
     putStrLn "getNodeFactors:"
-    print =<< getNodeFactors  cn
+    print =<< (map realToFrac <$> getNodeFactors  cn :: IO [Float])
   where
     die msg = do
         hPutStrLn stderr msg

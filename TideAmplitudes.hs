@@ -42,10 +42,8 @@ main = do
     let maxamp = innerProduct amplitudes nodeFactors
         m2ft = (/ 0.3048)
 
-    putStrLn $ "Maximum amplitude: "
-        ++ show (offset+maxamp) ++ " - " ++ show (offset-maxamp)
-        ++ " = " ++ show (       2*maxamp)
-        ++ " = " ++ show (m2ft $ 2*maxamp) ++ "ft"
+    putStrLn $ printf "Maximum amplitude: %.6f - %.6f = %.6f = %.6fft"
+        (offset+maxamp) (offset-maxamp) (2*maxamp) (m2ft $ 2*maxamp)
   where
     die msg = do
         hPutStrLn stderr msg
