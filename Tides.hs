@@ -83,15 +83,15 @@ tides station localTimes = do
     nodeFactors  <- mapM (`getNodeFactor`  yearNum) indices
     equilibriums <- mapM (`getEquilibrium` yearNum) indices
 
-    let series  = zipWith3 Harmonic
-                    (          zipWith (*) nodeFactors  (trAmplitudes r))
-                    (map d2r $ speeds)
-                    (map d2r $ zipWith (-) equilibriums (trEpochs     r))
+    let amplitudes =           zipWith (*) nodeFactors  (trAmplitudes r)
+        phases     = map d2r $ zipWith (-) equilibriums (trEpochs r)
+        velocities = map d2r speeds
+        offset     = trDatumOffset r
+
+        series  = zipWith3 Harmonic amplitudes velocities phases
         series' = differentiate series
         tide  = (+offset) . evaluate series
         tide' =             evaluate series'
-        offset = trDatumOffset r
-        d2r d = d * (pi / 180)
 
         hours = map utc2hr times
         heights = map tide hours
@@ -103,6 +103,9 @@ tides station localTimes = do
         toTideEvent (Extremum t h c) = Extremum (hr2utc t) (h + offset) c
 
     return (times, heights, units, events, tz)
+
+  where
+    d2r d = d * (pi / 180)
 
 yearOfTime :: Num a => UTCTime -> a
 yearOfTime = fromInteger . fst . toOrdinalDate . utctDay
