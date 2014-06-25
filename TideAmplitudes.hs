@@ -11,7 +11,7 @@ main = do
 
     opened <- openTideDb "/usr/share/xtide/harmonics-dwf-20100529-nonfree.tcd"
 
-    unless opened $ die "Cannot open tide database"
+    unless opened $ error "Cannot open tide database"
 
     hdr <- getTideDbHeader
 
@@ -24,11 +24,11 @@ main = do
 
     num <- searchStation station
 
-    unless (num >= 0) $ die "Cannot find station"
+    unless (num >= 0) $ error "Cannot find station"
 
     (rn, r) <- readTideRecord num
 
-    unless (rn == num) $ die "Cannot read record"
+    unless (rn == num) $ error "Cannot read record"
 
     let amplitudes = trAmplitudes  r
         offset     = trDatumOffset r
@@ -45,7 +45,4 @@ main = do
     putStrLn $ printf "Maximum amplitude: %.6f - %.6f = %.6f = %.6fft"
         (offset+maxamp) (offset-maxamp) (2*maxamp) (m2ft $ 2*maxamp)
   where
-    die msg = do
-        hPutStrLn stderr msg
-        exitFailure
     innerProduct xs ys = sum $ zipWith (*) xs ys

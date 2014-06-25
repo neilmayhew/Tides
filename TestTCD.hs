@@ -20,7 +20,7 @@ main = do
 
     opened <- openTideDb "/usr/share/xtide/harmonics-dwf-20100529-nonfree.tcd"
 
-    unless opened $ die "Cannot open tide database"
+    unless opened $ error "Cannot open tide database"
 
     hdr <- getTideDbHeader
     putStr "getTideDbHeader: "
@@ -35,13 +35,13 @@ main = do
     putStr "searchStation: "
     print num
 
-    unless (num >= 0) $ die "Cannot find station"
+    unless (num >= 0) $ error "Cannot find station"
 
     (rn, r) <- readTideRecord num
     putStr "readTideRecord: "
     print rn
 
-    unless (rn == num) $ die "Cannot read record"
+    unless (rn == num) $ error "Cannot read record"
 
     putStr =<< formatTideRecord r
 
@@ -61,7 +61,3 @@ main = do
     print =<< (map realToFrac <$> getEquilibriums cn :: IO [Float])
     putStrLn "getNodeFactors:"
     print =<< (map realToFrac <$> getNodeFactors  cn :: IO [Float])
-  where
-    die msg = do
-        hPutStrLn stderr msg
-        exitFailure

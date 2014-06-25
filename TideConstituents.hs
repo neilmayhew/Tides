@@ -12,7 +12,7 @@ main = do
 
     opened <- openTideDb "/usr/share/xtide/harmonics-dwf-20100529-nonfree.tcd"
 
-    unless opened $ die "Cannot open tide database"
+    unless opened $ error "Cannot open tide database"
 
     hdr <- getTideDbHeader
 
@@ -31,7 +31,3 @@ main = do
     putStr . unlines $ map
         (\(i, n, s, f, e) -> printf "%3d %-10s %11.7f %6.4f %6.2f" i n s f e)
         (zip5 indices names speeds nodeFactors equilibriums)
-  where
-    die msg = do
-        hPutStrLn stderr msg
-        exitFailure
