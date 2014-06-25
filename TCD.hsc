@@ -17,43 +17,43 @@ import Foreign.Storable
 
 data DatabaseHeader = DatabaseHeader
     { hdrVersion          :: String
-    , hdrMajorRev         :: Word32
-    , hdrMinorRev         :: Word32
+    , hdrMajorRev         :: Int
+    , hdrMinorRev         :: Int
     , hdrLastModified     :: String
-    , hdrNumberOfRecords  :: Word32
-    , hdrStartYear        :: Int32
-    , hdrNumberOfYears    :: Word32
-    , hdrConstituents     :: Word32
-    , hdrLevelUnitTypes   :: Word32
-    , hdrDirUnitTypes     :: Word32
-    , hdrRestrictionTypes :: Word32
-    , hdrDatumTypes       :: Word32
-    , hdrCountries        :: Word32
-    , hdrTzfiles          :: Word32
-    , hdrLegaleses        :: Word32
-    , hdrPedigreeTypes    :: Word32
+    , hdrNumberOfRecords  :: Int
+    , hdrStartYear        :: Int
+    , hdrNumberOfYears    :: Int
+    , hdrConstituents     :: Int
+    , hdrLevelUnitTypes   :: Int
+    , hdrDirUnitTypes     :: Int
+    , hdrRestrictionTypes :: Int
+    , hdrDatumTypes       :: Int
+    , hdrCountries        :: Int
+    , hdrTzfiles          :: Int
+    , hdrLegaleses        :: Int
+    , hdrPedigreeTypes    :: Int
     } deriving (Eq, Show)
 
 instance Storable DatabaseHeader where
     sizeOf _    = #{size DB_HEADER_PUBLIC}
-    alignment _ = alignment (undefined :: CInt)
+    alignment _ = alignment (undefined :: Int32)
     peek hdr    = DatabaseHeader
-        <$> (peekCString   $  (#{ptr  DB_HEADER_PUBLIC, version          } hdr            ))
-        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, major_rev        } hdr :: IO CUInt))
-        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, minor_rev        } hdr :: IO CUInt))
-        <*> (peekCString   $  (#{ptr  DB_HEADER_PUBLIC, last_modified    } hdr            ))
-        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, number_of_records} hdr :: IO CUInt))
-        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, start_year       } hdr :: IO CInt ))
-        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, number_of_years  } hdr :: IO CUInt))
-        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, constituents     } hdr :: IO CUInt))
-        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, level_unit_types } hdr :: IO CUInt))
-        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, dir_unit_types   } hdr :: IO CUInt))
-        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, restriction_types} hdr :: IO CUInt))
-        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, datum_types      } hdr :: IO CUInt))
-        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, countries        } hdr :: IO CUInt))
-        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, tzfiles          } hdr :: IO CUInt))
-        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, legaleses        } hdr :: IO CUInt))
-        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, pedigree_types   } hdr :: IO CUInt))
+        <$> (peekCString   $  (#{ptr  DB_HEADER_PUBLIC, version          } hdr             ))
+        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, major_rev        } hdr :: IO Word32))
+        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, minor_rev        } hdr :: IO Word32))
+        <*> (peekCString   $  (#{ptr  DB_HEADER_PUBLIC, last_modified    } hdr             ))
+        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, number_of_records} hdr :: IO Word32))
+        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, start_year       } hdr :: IO Int32 ))
+        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, number_of_years  } hdr :: IO Word32))
+        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, constituents     } hdr :: IO Word32))
+        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, level_unit_types } hdr :: IO Word32))
+        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, dir_unit_types   } hdr :: IO Word32))
+        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, restriction_types} hdr :: IO Word32))
+        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, datum_types      } hdr :: IO Word32))
+        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, countries        } hdr :: IO Word32))
+        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, tzfiles          } hdr :: IO Word32))
+        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, legaleses        } hdr :: IO Word32))
+        <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, pedigree_types   } hdr :: IO Word32))
     poke hdr _ = return ()
 
 data TideRecordType = ReferenceStation | SubordinateStation | UndefinedStation
@@ -77,12 +77,12 @@ instance Storable TideRecordType where
 
 data TideStationHeader = TideStationHeader
     { tshNumber           :: Int
-    , tshSize             :: Word32
+    , tshSize             :: Int
     , tshType             :: TideRecordType
     , tshLatitude         :: Double
     , tshLongitude        :: Double
     , tshReferenceStation :: Int
-    , tshTZFile           :: Int16
+    , tshTZFile           :: Int
     , tshName             :: String
     } deriving (Eq, Show)
 
@@ -90,13 +90,13 @@ instance Storable TideStationHeader where
     sizeOf _    = #{size TIDE_STATION_HEADER}
     alignment _ = alignment (undefined :: CDouble)
     peek hdr    = TideStationHeader
-        <$> (fromIntegral <$> (#{peek TIDE_STATION_HEADER, record_number    } hdr :: IO CInt   ))
-        <*> (fromIntegral <$> (#{peek TIDE_STATION_HEADER, record_size      } hdr :: IO CUInt  ))
+        <$> (fromIntegral <$> (#{peek TIDE_STATION_HEADER, record_number    } hdr :: IO Int32  ))
+        <*> (fromIntegral <$> (#{peek TIDE_STATION_HEADER, record_size      } hdr :: IO Word32 ))
         <*> (                 (#{peek TIDE_STATION_HEADER, record_type      } hdr              ))
         <*> (realToFrac   <$> (#{peek TIDE_STATION_HEADER, latitude         } hdr :: IO CDouble))
         <*> (realToFrac   <$> (#{peek TIDE_STATION_HEADER, longitude        } hdr :: IO CDouble))
-        <*> (fromIntegral <$> (#{peek TIDE_STATION_HEADER, reference_station} hdr :: IO CInt   ))
-        <*> (fromIntegral <$> (#{peek TIDE_STATION_HEADER, tzfile           } hdr :: IO CShort ))
+        <*> (fromIntegral <$> (#{peek TIDE_STATION_HEADER, reference_station} hdr :: IO Int32  ))
+        <*> (fromIntegral <$> (#{peek TIDE_STATION_HEADER, tzfile           } hdr :: IO Int16  ))
         <*> (peekCString   $  (#{ptr  TIDE_STATION_HEADER, name             } hdr              ))
       where
         toRecordType :: CUChar -> TideRecordType
@@ -105,41 +105,41 @@ instance Storable TideStationHeader where
 
 data TideRecord = TideRecord
     { trHeader            :: TideStationHeader
-    , trCountry           :: Int16
+    , trCountry           :: Int
     , trSource            :: String
-    , trRestriction       :: Word8
+    , trRestriction       :: Int
     , trComments          :: String
     , trNotes             :: String
-    , trLegalese          :: Word8
+    , trLegalese          :: Int
     , trStationIdContext  :: String
     , trStationId         :: String
-    , trDateImported      :: Word32
+    , trDateImported      :: Int
     , trXfields           :: String
-    , trDirectionUnits    :: Word8
-    , trMinDirection      :: Int32
-    , trMaxDirection      :: Int32
-    , trLevelUnits        :: Word8
+    , trDirectionUnits    :: Int
+    , trMinDirection      :: Int
+    , trMaxDirection      :: Int
+    , trLevelUnits        :: Int
                           
     -- Type 1             
-    , trDatumOffset       :: Float
-    , trDatum             :: Int16
-    , trZoneOffset        :: Int32
-    , trExpirationDate    :: Word32
-    , trMonthsOnStation   :: Word16
-    , trLastDateOnStation :: Word32
-    , trConfidence        :: Word8
-    , trAmplitudes        :: [Float]
-    , trEpochs            :: [Float]
+    , trDatumOffset       :: Double
+    , trDatum             :: Int
+    , trZoneOffset        :: Int
+    , trExpirationDate    :: Int
+    , trMonthsOnStation   :: Int
+    , trLastDateOnStation :: Int
+    , trConfidence        :: Int
+    , trAmplitudes        :: [Double]
+    , trEpochs            :: [Double]
                           
     -- Type 2             
-    , trMinTimeAdd        :: Int32
-    , trMinLevelAdd       :: Float
-    , trMinLevelMultiply  :: Float
-    , trMaxTimeAdd        :: Int32
-    , trMaxLevelAdd       :: Float
-    , trMaxLevelMultiply  :: Float
-    , trFloodBegins       :: Int32
-    , trEbbBegins         :: Int32
+    , trMinTimeAdd        :: Int
+    , trMinLevelAdd       :: Double
+    , trMinLevelMultiply  :: Double
+    , trMaxTimeAdd        :: Int
+    , trMaxLevelAdd       :: Double
+    , trMaxLevelMultiply  :: Double
+    , trFloodBegins       :: Int
+    , trEbbBegins         :: Int
     } deriving (Eq, Show)
 
 maxConstituents = #{const MAX_CONSTITUENTS}
@@ -149,39 +149,40 @@ instance Storable TideRecord where
     alignment _ = alignment (undefined :: TideStationHeader)
     peek rec    = TideRecord
         <$> (                 (#{peek TIDE_RECORD, header              } rec :: IO TideStationHeader))
-        <*> (fromIntegral <$> (#{peek TIDE_RECORD, country             } rec :: IO CShort           ))
+        <*> (fromIntegral <$> (#{peek TIDE_RECORD, country             } rec :: IO Int16            ))
         <*> (peekCString   $  (#{ptr  TIDE_RECORD, source              } rec                        ))
-        <*> (fromIntegral <$> (#{peek TIDE_RECORD, restriction         } rec :: IO CUChar           ))
+        <*> (fromIntegral <$> (#{peek TIDE_RECORD, restriction         } rec :: IO Word8            ))
         <*> (peekCString   $  (#{ptr  TIDE_RECORD, comments            } rec                        ))
         <*> (peekCString   $  (#{ptr  TIDE_RECORD, notes               } rec                        ))
-        <*> (fromIntegral <$> (#{peek TIDE_RECORD, legalese            } rec :: IO CUChar           ))
+        <*> (fromIntegral <$> (#{peek TIDE_RECORD, legalese            } rec :: IO Word8            ))
         <*> (peekCString   $  (#{ptr  TIDE_RECORD, station_id_context  } rec                        ))
         <*> (peekCString   $  (#{ptr  TIDE_RECORD, station_id          } rec                        ))
-        <*> (fromIntegral <$> (#{peek TIDE_RECORD, date_imported       } rec :: IO CUInt            ))
+        <*> (fromIntegral <$> (#{peek TIDE_RECORD, date_imported       } rec :: IO Word32           ))
         <*> (peekCString   $  (#{ptr  TIDE_RECORD, xfields             } rec                        ))
-        <*> (fromIntegral <$> (#{peek TIDE_RECORD, direction_units     } rec :: IO CUChar           ))
-        <*> (fromIntegral <$> (#{peek TIDE_RECORD, min_direction       } rec :: IO CInt             ))
-        <*> (fromIntegral <$> (#{peek TIDE_RECORD, max_direction       } rec :: IO CInt             ))
-        <*> (fromIntegral <$> (#{peek TIDE_RECORD, level_units         } rec :: IO CUChar           ))
+        <*> (fromIntegral <$> (#{peek TIDE_RECORD, direction_units     } rec :: IO Word8            ))
+        <*> (fromIntegral <$> (#{peek TIDE_RECORD, min_direction       } rec :: IO Int32            ))
+        <*> (fromIntegral <$> (#{peek TIDE_RECORD, max_direction       } rec :: IO Int32            ))
+        <*> (fromIntegral <$> (#{peek TIDE_RECORD, level_units         } rec :: IO Word8            ))
         <*> (realToFrac   <$> (#{peek TIDE_RECORD, datum_offset        } rec :: IO CFloat           ))
-        <*> (fromIntegral <$> (#{peek TIDE_RECORD, datum               } rec :: IO CShort           ))
-        <*> (fromIntegral <$> (#{peek TIDE_RECORD, zone_offset         } rec :: IO CInt             ))
-        <*> (fromIntegral <$> (#{peek TIDE_RECORD, expiration_date     } rec :: IO CUInt            ))
-        <*> (fromIntegral <$> (#{peek TIDE_RECORD, months_on_station   } rec :: IO CUShort          ))
-        <*> (fromIntegral <$> (#{peek TIDE_RECORD, last_date_on_station} rec :: IO CUInt            ))
-        <*> (fromIntegral <$> (#{peek TIDE_RECORD, confidence          } rec :: IO CUChar           ))
-        <*> (peekArray n   $  (#{ptr  TIDE_RECORD, amplitude           } rec                        ))
-        <*> (peekArray n   $  (#{ptr  TIDE_RECORD, epoch               } rec                        ))
-        <*> (fromIntegral <$> (#{peek TIDE_RECORD, min_time_add        } rec  :: IO CInt            ))
-        <*> (realToFrac   <$> (#{peek TIDE_RECORD, min_level_add       } rec  :: IO CFloat          ))
-        <*> (realToFrac   <$> (#{peek TIDE_RECORD, min_level_multiply  } rec  :: IO CFloat          ))
-        <*> (fromIntegral <$> (#{peek TIDE_RECORD, max_time_add        } rec  :: IO CInt            ))
-        <*> (realToFrac   <$> (#{peek TIDE_RECORD, max_level_add       } rec  :: IO CFloat          ))
-        <*> (realToFrac   <$> (#{peek TIDE_RECORD, max_level_multiply  } rec  :: IO CFloat          ))
-        <*> (fromIntegral <$> (#{peek TIDE_RECORD, flood_begins        } rec  :: IO CInt            ))
-        <*> (fromIntegral <$> (#{peek TIDE_RECORD, ebb_begins          } rec  :: IO CInt            ))
+        <*> (fromIntegral <$> (#{peek TIDE_RECORD, datum               } rec :: IO Int16            ))
+        <*> (fromIntegral <$> (#{peek TIDE_RECORD, zone_offset         } rec :: IO Int32            ))
+        <*> (fromIntegral <$> (#{peek TIDE_RECORD, expiration_date     } rec :: IO Word32           ))
+        <*> (fromIntegral <$> (#{peek TIDE_RECORD, months_on_station   } rec :: IO Word16           ))
+        <*> (fromIntegral <$> (#{peek TIDE_RECORD, last_date_on_station} rec :: IO Word32           ))
+        <*> (fromIntegral <$> (#{peek TIDE_RECORD, confidence          } rec :: IO Word8            ))
+        <*> (peekConstituents (#{ptr  TIDE_RECORD, amplitude           } rec                        ))
+        <*> (peekConstituents (#{ptr  TIDE_RECORD, epoch               } rec                        ))
+        <*> (fromIntegral <$> (#{peek TIDE_RECORD, min_time_add        } rec :: IO Int32            ))
+        <*> (realToFrac   <$> (#{peek TIDE_RECORD, min_level_add       } rec :: IO CFloat           ))
+        <*> (realToFrac   <$> (#{peek TIDE_RECORD, min_level_multiply  } rec :: IO CFloat           ))
+        <*> (fromIntegral <$> (#{peek TIDE_RECORD, max_time_add        } rec :: IO Int32            ))
+        <*> (realToFrac   <$> (#{peek TIDE_RECORD, max_level_add       } rec :: IO CFloat           ))
+        <*> (realToFrac   <$> (#{peek TIDE_RECORD, max_level_multiply  } rec :: IO CFloat           ))
+        <*> (fromIntegral <$> (#{peek TIDE_RECORD, flood_begins        } rec :: IO Int32            ))
+        <*> (fromIntegral <$> (#{peek TIDE_RECORD, ebb_begins          } rec :: IO Int32            ))
       where
-        n = maxConstituents
+        peekConstituents :: Ptr CFloat -> IO [Double]
+        peekConstituents p = map realToFrac <$> peekArray maxConstituents p
     poke rec _  = return ()
 
 {- DWF: This value signifies "null" or "omitted" slack offsets
@@ -233,7 +234,7 @@ getPartialTideRecord num =
         return (res, rec)
 
 foreign import ccall safe "tcd.h get_partial_tide_record"
-  c_get_partial_tide_record :: Int32 -> Ptr TideStationHeader -> IO CUChar
+  c_get_partial_tide_record :: Int32 -> Ptr TideStationHeader -> IO Word8
 
 readTideRecord :: Int -> IO (Int, TideRecord)
 readTideRecord num =
@@ -243,7 +244,7 @@ readTideRecord num =
         return (res, rec)
 
 foreign import ccall safe "tcd.h read_tide_record"
-  c_read_tide_record :: CInt -> Ptr TideRecord -> IO CInt
+  c_read_tide_record :: Int32 -> Ptr TideRecord -> IO Int32
 
 {- Invokes get_partial_tide_record for a station that appears closest
    to the specified lat and lon in the Cylindrical Equidistant
@@ -275,47 +276,47 @@ foreign import ccall safe "tcd.h dump_tide_record"
    value "Unknown" is returned when no translation exists.  The return
    value is a pointer into static memory. -}
 
-getCountry :: Int16 -> IO String
+getCountry :: Int -> IO String
 getCountry num = peekCString =<< c_get_country (fromIntegral num)
 
 foreign import ccall safe "tcd.h get_country"
-  c_get_country :: CInt -> IO CString
+  c_get_country :: Int32 -> IO CString
 
-getTZFile :: Int16 -> IO String
+getTZFile :: Int -> IO String
 getTZFile num = peekCString =<< c_get_tzfile (fromIntegral num)
 
 foreign import ccall safe "tcd.h get_tzfile"
-  c_get_tzfile :: CInt -> IO CString
+  c_get_tzfile :: Int32 -> IO CString
 
-getLevelUnits :: Word8 -> IO String
+getLevelUnits :: Int -> IO String
 getLevelUnits num = peekCString =<< c_get_level_units (fromIntegral num)
 
 foreign import ccall safe "tcd.h get_level_units"
-  c_get_level_units :: CInt -> IO CString
+  c_get_level_units :: Int32 -> IO CString
 
-getDirUnits :: Word8 -> IO String
+getDirUnits :: Int -> IO String
 getDirUnits num = peekCString =<< c_get_dir_units (fromIntegral num)
 
 foreign import ccall safe "tcd.h get_dir_units"
-  c_get_dir_units :: CInt -> IO CString
+  c_get_dir_units :: Int32 -> IO CString
 
-getRestriction :: Word8 -> IO String
+getRestriction :: Int -> IO String
 getRestriction num = peekCString =<< c_get_restriction (fromIntegral num)
 
 foreign import ccall safe "tcd.h get_restriction"
-  c_get_restriction :: CInt -> IO CString
+  c_get_restriction :: Int32 -> IO CString
 
-getDatum :: Int16 -> IO String
+getDatum :: Int -> IO String
 getDatum num = peekCString =<< c_get_datum (fromIntegral num)
 
 foreign import ccall safe "tcd.h get_datum"
-  c_get_datum :: CInt -> IO CString
+  c_get_datum :: Int32 -> IO CString
 
-getLegalese :: Word8 -> IO String
+getLegalese :: Int -> IO String
 getLegalese num = peekCString =<< c_get_legalese (fromIntegral num)
 
 foreign import ccall safe "tcd.h get_legalese"
-  c_get_legalese :: CInt -> IO CString
+  c_get_legalese :: Int32 -> IO CString
 
 {- When invoked multiple times with the same string, returns record
    numbers of all stations that have that string anywhere in the
@@ -361,13 +362,13 @@ foreign import ccall safe "tcd.h get_speed"
    indicated by num [0,constituents-1], for the year
    start_year+year. -}
 
-getEquilibrium :: Int -> Int -> IO Float
+getEquilibrium :: Int -> Int -> IO Double
 getEquilibrium num year = realToFrac <$> c_get_equilibrium (fromIntegral num) (fromIntegral year)
 
 foreign import ccall safe "tcd.h get_equilibrium"
   c_get_equilibrium :: Int32 -> Int32 -> IO CFloat
 
-getNodeFactor :: Int -> Int -> IO Float
+getNodeFactor :: Int -> Int -> IO Double
 getNodeFactor num year = realToFrac <$> c_get_node_factor (fromIntegral num) (fromIntegral year)
 
 foreign import ccall safe "tcd.h get_node_factor"
@@ -379,7 +380,7 @@ foreign import ccall safe "tcd.h get_node_factor"
    number_of_years floats, corresponding to the years start_year
    through start_year+number_of_years-1. -}
 
-getEquilibriums :: Int -> IO [Float]
+getEquilibriums :: Int -> IO [Double]
 getEquilibriums num = do
     n <- hdrNumberOfYears <$> getTideDbHeader
     a <- peekArray (fromIntegral n) =<< c_get_equilibriums (fromIntegral num)
@@ -388,7 +389,7 @@ getEquilibriums num = do
 foreign import ccall safe "tcd.h get_equilibriums"
   c_get_equilibriums :: Int32 -> IO (Ptr CFloat)
 
-getNodeFactors  :: Int -> IO [Float]
+getNodeFactors  :: Int -> IO [Double]
 getNodeFactors num = do
     n <- hdrNumberOfYears <$> getTideDbHeader
     a <- peekArray (fromIntegral n) =<< c_get_node_factors (fromIntegral num)

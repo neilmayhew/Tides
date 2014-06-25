@@ -43,7 +43,7 @@ formatTideRecord r =
         , ("Last date on station" , return . show . trLastDateOnStation           )
         , ("Confidence"           , return . show . trConfidence                  )
         ]
-    showConstituent :: (Int, Float, Float) -> [String]
+    showConstituent :: (Int, Double, Double) -> [String]
     showConstituent (i, amp, epoch) =
         if amp /= 0.0
         then [ printf "Amplitude[%d] = %.6f" i amp

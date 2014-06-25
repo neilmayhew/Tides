@@ -50,8 +50,8 @@ tides station localTimes = do
 
     hdr <- getTideDbHeader
 
-    let nConstituents = fromIntegral (hdrConstituents hdr) :: Int
-        baseYear      = fromIntegral (hdrStartYear    hdr) :: Int
+    let nConstituents = hdrConstituents hdr
+        baseYear      = hdrStartYear    hdr
         indices       = [0..nConstituents-1]
 
     speeds <- mapM getSpeed indices
@@ -84,13 +84,13 @@ tides station localTimes = do
     equilibriums <- mapM (`getEquilibrium` yearNum) indices
 
     let series  = zipWith3 Harmonic
-                    (map (      realToFrac) $ zipWith (*) nodeFactors  (trAmplitudes r))
-                    (map (d2r . realToFrac) $ speeds)
-                    (map (d2r . realToFrac) $ zipWith (-) equilibriums (trEpochs     r))
+                    (          zipWith (*) nodeFactors  (trAmplitudes r))
+                    (map d2r $ speeds)
+                    (map d2r $ zipWith (-) equilibriums (trEpochs     r))
         series' = differentiate series
         tide  = (+offset) . evaluate series
         tide' =             evaluate series'
-        offset = realToFrac (trDatumOffset r)
+        offset = trDatumOffset r
         d2r d = d * (pi / 180)
 
         hours = map utc2hr times
