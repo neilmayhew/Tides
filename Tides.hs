@@ -88,10 +88,10 @@ tides station localTimes = do
         velocities = map d2r speeds
         offset     = trDatumOffset r
 
-        series  = zipWith3 Harmonic amplitudes velocities phases
+        series  = makeSeries offset amplitudes velocities phases
         series' = differentiate series
-        tide  = (+offset) . evaluate series
-        tide' =             evaluate series'
+        tide    = evaluate series
+        tide'   = evaluate series'
 
         hours = map utc2hr times
         heights = map tide hours
@@ -100,7 +100,7 @@ tides station localTimes = do
         reversals = filter (\(t0, t1) -> tide' t0 * tide' t1 <= 0) slots
         events = concatMap findEvents reversals
         findEvents = map toTideEvent . extrema series (1/120)
-        toTideEvent (Extremum t h c) = Extremum (hr2utc t) (h + offset) c
+        toTideEvent (Extremum t h c) = Extremum (hr2utc t) h c
 
     return (times, heights, units, events, tz)
 
