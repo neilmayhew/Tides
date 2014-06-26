@@ -12,7 +12,7 @@ maintainer:          neil_mayhew@users.sourceforge.net
 copyright:           2014 Neil Mayhew <neil_mayhew@users.sourceforge.net>
 --category:
 build-type:          Simple
-cabal-version:       >=1.8
+cabal-version:       >=1.9.2
 
 library
   exposed-modules:     TCD
@@ -38,3 +38,8 @@ executable TideAmplitudes
   main-is:             TideAmplitudes.hs
   extra-libraries:     tcd
   build-depends:       base >=4.5.0, Tides
+
+test-suite TestRegressions
+    type:              exitcode-stdio-1.0
+    main-is:           TestRegressions.hs
+    build-depends:     base >=4.5.0, process >=1.0
