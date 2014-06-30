@@ -1,10 +1,10 @@
 import TCD
 import Harmonics
 import Analysis
+import Time
 
 import Control.Monad
 import Data.Time
-import Data.Time.Calendar.OrdinalDate
 import Data.Time.Zones
 import System.Environment
 import System.Exit
@@ -74,11 +74,9 @@ tides station localTimes = do
     -- TODO: handle crossing year boundaries
 
     let times = map (localTimeToUTCTZ tz) localTimes
-        startUTC = head times
-        yearUTC = startOfTheYear startUTC
-        utc2hr t = realToFrac (t `diffUTCTime` yearUTC) / 3600
-        hr2utc h = realToFrac (h * 3600) `addUTCTime` yearUTC
-        yearNum = yearOfTime startUTC - baseYear
+        yhTimes = map utcTimeToYhTime times
+        startYear = yhYear (head yhTimes)
+        yearNum = fromIntegral startYear - baseYear
 
     nodeFactors  <- mapM (`getNodeFactor`  yearNum) indices
     equilibriums <- mapM (`getEquilibrium` yearNum) indices
@@ -93,26 +91,16 @@ tides station localTimes = do
         tide    = evaluate series
         tide'   = evaluate series'
 
-        hours = map utc2hr times
+        hours = map yhHour yhTimes
         heights = map tide hours
 
         slots = zip hours (map (+1) hours)
         reversals = filter (\(t0, t1) -> tide' t0 * tide' t1 <= 0) slots
         events = concatMap findEvents reversals
         findEvents = map toTideEvent . extrema series (1/120)
-        toTideEvent (Extremum t h c) = Extremum (hr2utc t) h c
+        toTideEvent (Extremum t h c) = Extremum (yhTimeToUtcTime $ YHTime startYear t) h c
 
     return (times, heights, units, events, tz)
 
   where
     d2r d = d * (pi / 180)
-
-yearOfTime :: Num a => UTCTime -> a
-yearOfTime = fromInteger . fst . toOrdinalDate . utctDay
-
-timeOfTheYear :: UTCTime -> NominalDiffTime
-timeOfTheYear t = t `diffUTCTime` startOfTheYear t
-
-startOfTheYear :: UTCTime -> UTCTime
-startOfTheYear t = UTCTime (fromGregorian year 1 1) 0
-  where year = yearOfTime t
