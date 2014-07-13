@@ -24,6 +24,11 @@ executable Tides
   extra-libraries:     tcd
   build-depends:       base >=4.5.0, Tides, time >= 1.4, old-locale >= 1.0, tz >= 0.0.0.5
 
+executable TestTides
+  main-is:             TestTides.hs
+--extra-libraries:     tcd
+  build-depends:       base >=4.5.0, Tides, time >= 1.4, old-locale >= 1.0, HSH >= 2.0
+
 executable TestTCD
   main-is:             TestTCD.hs
   extra-libraries:     tcd
