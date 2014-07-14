@@ -11,19 +11,16 @@ import Text.Printf
 main = do
     [location] <- getArgs
 
-    -- Period supported by current database
-    let periodStart = UTCTime (fromGregorian 1700 1 1) 0
-        periodEnd   = UTCTime (fromGregorian 2101 1 1) (-1)
+    let zone = utc -- TODO: get from location
 
-    begin   <- fst . randomR (periodStart, periodEnd) <$> newStdGen
-    minutes <- fst . randomR (1, 120) <$> newStdGen :: IO Int
-    number  <- fst . randomR (3, 37) <$> newStdGen
+    interval <- randomIO
 
-    let step = realToFrac (minutes * 60)
-        end  = (number * step) `addUTCTime` begin
-        zone = utc -- TODO
+    let begin = toLocal $ prBegin interval
+        end   = toLocal $ prEnd   interval
+        step  =           prStep  interval
+        toLocal = utcToLocalTime zone
 
-    predictions <- getModel location (utcToLocalTime zone begin) (utcToLocalTime zone end) step
+    predictions <- getModel location begin end step
 
     forM_ predictions $ putStrLn . formatPrediction
 
@@ -40,6 +37,24 @@ getModel location begin end step =
     xtideTime     = formatTime defaultTimeLocale "%F %H:%M"
     xtideInterval = formatTime defaultTimeLocale "%H:%M" . timeToTimeOfDay . realToFrac
     parseLine = second read . head . readsTime defaultTimeLocale "%F %l:%M %p %Z"
+
+data PredictionInterval = PredictionInterval
+    { prBegin :: UTCTime
+    , prEnd   :: UTCTime
+    , prStep  :: NominalDiffTime
+    } deriving (Eq, Show)
+
+instance Random PredictionInterval where
+    random = randomR (PredictionInterval periodStart periodEnd 0, PredictionInterval periodStart periodEnd 0)
+      where -- Period supported by current tide component database
+            periodStart = UTCTime (fromGregorian 1700 1 1) 0
+            periodEnd   = UTCTime (fromGregorian 2101 1 1) (-1)
+    randomR (lo, hi) g = (PredictionInterval begin end step, g''')
+      where (begin,   g'  ) = randomR (prBegin lo, prEnd hi) g
+            (minutes, g'' ) = randomR (1, 120) g'
+            (number,  g''') = randomR (3, 37) g''
+            step = realToFrac (minutes * 60 :: Int)
+            end  = min (prEnd hi) $ (number * step) `addUTCTime` begin
 
 instance Random DiffTime where
     random = first secondsToDiffTime . random
