@@ -9,12 +9,21 @@ import System.Random
 import Text.Printf
 
 main = do
-    [location, begin, end, step] <- getArgs
+    [location] <- getArgs
 
-    let toTime     = readTime defaultTimeLocale "%F"
-        toInterval = realToFrac . timeOfDayToTime . readTime defaultTimeLocale "%H:%M"
+    -- Period supported by current database
+    let periodStart = UTCTime (fromGregorian 1700 1 1) 0
+        periodEnd   = UTCTime (fromGregorian 2101 1 1) (-1)
 
-    predictions <- getModel location (toTime begin) (toTime end) (toInterval step)
+    begin   <- fst . randomR (periodStart, periodEnd) <$> newStdGen
+    minutes <- fst . randomR (1, 120) <$> newStdGen :: IO Int
+    number  <- fst . randomR (3, 37) <$> newStdGen
+
+    let step = realToFrac (minutes * 60)
+        end  = (number * step) `addUTCTime` begin
+        zone = utc -- TODO
+
+    predictions <- getModel location (utcToLocalTime zone begin) (utcToLocalTime zone end) step
 
     forM_ predictions $ putStrLn . formatPrediction
 
