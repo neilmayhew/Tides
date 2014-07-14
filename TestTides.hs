@@ -20,23 +20,48 @@ main = do
         step  =           prStep  interval
         toLocal = utcToLocalTime zone
 
-    predictions <- getModel location begin end step
+    heights <- getModelHeights location begin end step
 
-    forM_ predictions $ putStrLn . formatPrediction
+    forM_ heights $ \(t, h) ->
+        putStrLn $ formatPrediction t h
 
-formatPrediction :: (ZonedTime, Double) -> String
-formatPrediction (t, h) = printf "%s %.6f" (formatTime defaultTimeLocale "%F %H:%M %Z" t) h
+    times <- getModelTimes location begin end step
 
-getModel :: String -> LocalTime -> LocalTime -> NominalDiffTime
-            -> IO [(ZonedTime, Double)]
-getModel location begin end step =
-    let cmd = printf "tide -l '%s' -b '%s' -e '%s' -s '%s' -m m -em pSsMm 2>/dev/null"
-                location (xtideTime begin) (xtideTime end) (xtideInterval step) :: String
-    in map parseLine <$> run cmd
+    forM_ times $ \(t, h, ty) ->
+        putStrLn $ formatPrediction t h ++ printf " %-4s Tide" ty
+
+formatPrediction :: ZonedTime -> Double -> String
+formatPrediction t h = printf "%s %9.6f" (formatTime defaultTimeLocale "%F %H:%M %Z" t) h
+
+getModelHeights :: String -> LocalTime -> LocalTime -> NominalDiffTime
+                   -> IO [(ZonedTime, Double)]
+getModelHeights location begin end step = do
+    let cmd = tideCmd location begin end step "m"
+    map parseLine <$> run cmd
   where
-    xtideTime     = formatTime defaultTimeLocale "%F %H:%M"
-    xtideInterval = formatTime defaultTimeLocale "%H:%M" . timeToTimeOfDay . realToFrac
-    parseLine = second read . head . readsTime defaultTimeLocale "%F %l:%M %p %Z"
+    parseLine = second read . parseXtTime
+
+getModelTimes :: String -> LocalTime -> LocalTime -> NominalDiffTime
+                 -> IO [(ZonedTime, Double, String)]
+getModelTimes location begin end step = do
+    let cmd = tideCmd location begin end step "p" ++ " | sed '1,/^$/d'"
+    map parseLine <$> run cmd
+  where
+    parseLine s = (t, h, ty)
+      where (t, rest) = parseXtTime s
+            [ht, _, ty, _] = words rest
+            h = read ht
+
+tideCmd location begin end step mode =
+    printf "tide -l '%s' -b '%s' -e '%s' -s '%s' -em pSsMm -m %s 2>/dev/null"
+        location (fmtXtTime begin) (fmtXtTime end) (fmtXtInterval step) mode :: String
+
+fmtXtTime     = formatTime defaultTimeLocale "%F %H:%M"
+fmtXtInterval = formatTime defaultTimeLocale "%H:%M" . timeToTimeOfDay . realToFrac
+readsXtTime   = readsTime  defaultTimeLocale "%F %l:%M %p %Z"
+parseXtTime s = case readsXtTime s of
+    [x] -> x
+    _   -> error $ "Can't parse time: " ++ s
 
 data PredictionInterval = PredictionInterval
     { prBegin :: UTCTime
