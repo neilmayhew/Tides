@@ -92,10 +92,12 @@ tides station begin end step = do
         tide    = evaluate series
         tide'   = evaluate series'
 
-        hours = map yhHour yhTimes
-        heights = map tide hours
+        heights = map (tide . yhHour) yhTimes
 
-        slots = zip hours (map (+1) hours)
+        beginHour = yhHour (head yhTimes)
+        endHour   = yhHour (last yhTimes)
+        hours = takeWhile (< endHour) [beginHour ..] ++ [endHour]
+        slots = zip hours (drop 1 hours)
         reversals = filter (\(t0, t1) -> tide' t0 * tide' t1 <= 0) slots
         events = concatMap findEvents reversals
         findEvents = map toTideEvent . extrema series (1/120)
