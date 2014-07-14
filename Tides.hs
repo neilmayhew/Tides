@@ -12,14 +12,12 @@ import System.Locale (defaultTimeLocale)
 import Text.Printf
 
 main = do
-    (station:date:_) <- getArgs
+    [location, begin, end, step] <- getArgs
 
-    let start = readTime defaultTimeLocale "%F" date
-        step = 3600
-        duration = step * 24
-        localTimes = map (utcToLocalTime utc . (`addUTCTime` start)) [0, step .. duration]
+    let toTime     = readTime defaultTimeLocale "%F %H:%M"
+        toInterval = realToFrac . timeOfDayToTime . readTime defaultTimeLocale "%H:%M"
 
-    (times, heights, units, extrema, tz) <- tides station localTimes
+    (times, heights, units, extrema, tz) <- tides location  (toTime begin) (toTime end) (toInterval step)
 
     -- Output tide heights for the period
 
@@ -41,9 +39,9 @@ main = do
     showType Minimum    = "Low"
     showType Inflection = "Stationary" -- Never happens?
 
-tides :: String -> [LocalTime]
+tides :: String -> LocalTime -> LocalTime -> NominalDiffTime
          -> IO ([UTCTime], [Double], String, [Extremum UTCTime Double], TZ)
-tides station localTimes = do
+tides station begin end step = do
 
     opened <- openTideDb "/usr/share/xtide/harmonics-dwf-20100529-nonfree.tcd"
     unless opened $ error "Cannot open tide database"
@@ -73,7 +71,10 @@ tides station localTimes = do
 
     -- TODO: handle crossing year boundaries
 
-    let times = map (localTimeToUTCTZ tz) localTimes
+    let beginUTC = localTimeToUTCTZ tz begin
+        endUTC   = localTimeToUTCTZ tz end
+        duration = endUTC `diffUTCTime` beginUTC
+        times = map (`addUTCTime` beginUTC) [0, step .. duration]
         yhTimes = map utcTimeToYhTime times
         startYear = yhYear (head yhTimes)
         yearNum = fromIntegral startYear - baseYear

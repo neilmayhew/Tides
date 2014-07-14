@@ -8,10 +8,10 @@ instance Monoid ExitCode where
     mappend ExitSuccess b = b
     mappend a           _ = a
 
-main = mapM test [ ("TestTCD"         , "Hinkley"           )
-                 , ("TideConstituents", "2014"              )
-                 , ("TideAmplitudes"  , "Hinkley 2014"      )
-                 , ("Tides"           , "Hinkley 2014-06-13")
+main = mapM test [ ("TestTCD"         , "Hinkley")
+                 , ("TideConstituents", "2014")
+                 , ("TideAmplitudes"  , "Hinkley 2014")
+                 , ("Tides"           , "Hinkley '2014-06-13 00:00' '2014-06-14 00:00' 01:00")
                  ]
         >>= exitWith . mconcat
 
