@@ -11,7 +11,7 @@ instance Monoid ExitCode where
 main = mapM test [ ("TestTCD"         , "Hinkley")
                  , ("TideConstituents", "2014")
                  , ("TideAmplitudes"  , "Hinkley 2014")
-                 , ("Tides"           , "Hinkley '2014-06-13 00:00' '2014-06-14 00:00' 01:00")
+                 , ("Tides"           , "Hinkley '1961-05-26 14:29' '1961-05-28 06:38' 01:26")
                  ]
         >>= exitWith . mconcat
 
