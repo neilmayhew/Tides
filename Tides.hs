@@ -60,14 +60,10 @@ tides station begin end step = do
     (rn, r) <- readTideRecord num
     unless (rn == num) $ error "Cannot read record"
 
-    name <- return . tshName . trHeader $ r
+    name    <- return . tshName . trHeader $ r
     country <- getCountry . trCountry $ r
-    putStrLn $ printf "Station: %s, %s" name country
-
-    tzname <- liftM tail . getTZFile . tshTZFile . trHeader $ r
-    tz <- loadSystemTZ tzname
-
-    units <- getLevelUnits . trLevelUnits $ r
+    tz      <- loadSystemTZ . tail <=< getTZFile . tshTZFile . trHeader $ r
+    units   <- getLevelUnits . trLevelUnits $ r
 
     -- TODO: handle crossing year boundaries
 
