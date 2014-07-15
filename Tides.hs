@@ -69,8 +69,8 @@ tides station begin end step = do
 
     let beginUTC = localTimeToUTCTZ tz begin
         endUTC   = localTimeToUTCTZ tz end
-        duration = endUTC `diffUTCTime` beginUTC
-        times = map (`addUTCTime` beginUTC) [0, step .. duration]
+        nextUTC  = step `addUTCTime` beginUTC
+        times = [beginUTC, nextUTC .. endUTC]
         yhTimes = map utcTimeToYhTime times
         startYear = yhYear (head yhTimes)
         yearNum = fromIntegral startYear - baseYear

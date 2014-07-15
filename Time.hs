@@ -2,6 +2,7 @@ module Time where
 
 import Data.Time
 import Data.Time.Calendar.OrdinalDate
+import Data.Time.Clock.POSIX
 
 data YHTime = YHTime
     { yhYear :: Integer
@@ -26,3 +27,14 @@ timeOfTheYear t = t `diffUTCTime` startOfTheYear y
 
 startOfTheYear :: Integer -> UTCTime
 startOfTheYear y = UTCTime (fromGregorian y 1 1) 0
+
+instance Enum UTCTime where
+    succ                   = addUTCTime ( 1)
+    pred                   = addUTCTime (-1)
+    toEnum                 = posixSecondsToUTCTime . fromIntegral
+    fromEnum               = round . utcTimeToPOSIXSeconds
+
+    enumFrom x             = iterate succ x
+    enumFromThen x y       = iterate (addUTCTime d) x where d = y `diffUTCTime` x
+    enumFromTo x y         = takeWhile (<= y) $ enumFrom x
+    enumFromThenTo x1 x2 y = takeWhile (<= y) $ enumFromThen x1 x2
