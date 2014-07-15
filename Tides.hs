@@ -17,16 +17,16 @@ main = do
     let toTime     = readTime defaultTimeLocale "%F %H:%M"
         toInterval = realToFrac . timeOfDayToTime . readTime defaultTimeLocale "%H:%M"
 
-    (times, heights, units, extrema, tz) <- tides location  (toTime begin) (toTime end) (toInterval step)
+    (heights, events, units, tz) <- tides location  (toTime begin) (toTime end) (toInterval step)
 
     -- Output tide heights for the period
 
-    forM_ (zip times heights) $ \(t, h) ->
+    forM_ heights $ \(t, h) ->
         putStrLn $ printf "%s %10.6f" (showTime tz t) h
 
     -- Output low and high tides for the period
 
-    forM_ extrema $ \(Extremum t h c) ->
+    forM_ events $ \(Extremum t h c) ->
         putStrLn $ printf "%s %6.2f %s  %s Tide"
             (showTime tz t) h units (showType c)
   where
@@ -40,7 +40,7 @@ main = do
     showType Inflection = "Stationary" -- Never happens?
 
 tides :: String -> LocalTime -> LocalTime -> NominalDiffTime
-         -> IO ([UTCTime], [Double], String, [Extremum UTCTime Double], TZ)
+         -> IO ([(UTCTime, Double)], [Extremum UTCTime Double], String, TZ)
 tides station begin end step = do
 
     opened <- openTideDb "/usr/share/xtide/harmonics-dwf-20100529-nonfree.tcd"
@@ -99,7 +99,7 @@ tides station begin end step = do
         findEvents = map toTideEvent . extrema series (1/120)
         toTideEvent (Extremum t h c) = Extremum (yhTimeToUtcTime $ YHTime startYear t) h c
 
-    return (times, heights, units, events, tz)
+    return (zip times heights, events, units, tz)
 
   where
     d2r d = d * (pi / 180)
