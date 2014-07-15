@@ -3,15 +3,17 @@ module Analysis where
 data Criticality = Maximum | Minimum | Inflection
     deriving (Eq, Show, Read)
 
-data Extremum x y = Extremum
-    { exAbscissa :: x
-    , exOrdinate :: y
-    , exType     :: Criticality
+data Extremum p = Extremum
+    { exPoint :: p
+    , exType  :: Criticality
     } deriving (Eq, Show)
 
+instance Functor Extremum where
+    fmap f (Extremum p c) = Extremum (f p) c
+
 extremum :: (Fractional t, Ord t) =>
-    (t -> t) -> (t -> t) -> (t -> t) -> t -> (t, t) -> Extremum t t
-extremum f f' f'' e r = Extremum x y t
+    (t -> t) -> (t -> t) -> (t -> t) -> t -> (t, t) -> Extremum (t, t)
+extremum f f' f'' e r = Extremum (x, y) t
   where x = solve f' f'' e r
         y = f x
         c = f'' x

@@ -24,8 +24,11 @@ differentiate :: Series -> Series
 differentiate (Series o hs) = Series 0 (map differentiate1 hs)
   where differentiate1 (Harmonic c s p) = Harmonic (c * s) s (p + (pi/2))
 
+type Point    = (Double, Double)
+type Interval = (Double, Double)
+
 -- TODO: chop up interval based on highest speed
-extrema :: Series -> Double -> (Double, Double) -> [Extremum Double Double]
+extrema :: Series -> Double -> Interval -> [Extremum Point]
 extrema s e (x0, x1) = [extremum f f' f'' e (x0, x1)]
   where s'  = differentiate s
         s'' = differentiate s'

@@ -3,6 +3,7 @@ import Harmonics
 import Analysis
 import Time
 
+import Control.Arrow (first)
 import Control.Monad
 import Data.Time
 import Data.Time.Zones
@@ -26,7 +27,7 @@ main = do
 
     -- Output low and high tides for the period
 
-    forM_ events $ \(Extremum t h c) ->
+    forM_ events $ \(Extremum (t, h) c) ->
         putStrLn $ printf "%s %6.2f %s  %s Tide"
             (showTime tz t) h units (showType c)
   where
@@ -39,8 +40,10 @@ main = do
     showType Minimum    = "Low"
     showType Inflection = "Stationary" -- Never happens?
 
+type Prediction = (UTCTime, Double)
+
 tides :: String -> LocalTime -> LocalTime -> NominalDiffTime
-         -> IO ([(UTCTime, Double)], [Extremum UTCTime Double], String, TZ)
+         -> IO ([Prediction], [Extremum Prediction], String, TZ)
 tides station begin end step = do
 
     opened <- openTideDb "/usr/share/xtide/harmonics-dwf-20100529-nonfree.tcd"
@@ -97,7 +100,7 @@ tides station begin end step = do
         reversals = filter (\(t0, t1) -> tide' t0 * tide' t1 <= 0) slots
         events = concatMap findEvents reversals
         findEvents = map toTideEvent . extrema series (1/120)
-        toTideEvent (Extremum t h c) = Extremum (yhTimeToUtcTime $ YHTime startYear t) h c
+        toTideEvent = fmap . first $ yhTimeToUtcTime . YHTime startYear
 
     return (zip times heights, events, units, tz)
 
