@@ -46,7 +46,7 @@ tides :: String -> LocalTime -> LocalTime -> NominalDiffTime
          -> IO ([Prediction], [Extremum Prediction], String, TZ)
 tides station begin end step = do
 
-    opened <- openTideDb "/usr/share/xtide/harmonics-dwf-20100529-nonfree.tcd"
+    opened <- openTideDb defaultTideDbPath
     unless opened $ error "Cannot open tide database"
 
     hdr <- getTideDbHeader

@@ -10,7 +10,7 @@ import Text.Printf
 main = do
     (date:_) <- getArgs
 
-    opened <- openTideDb "/usr/share/xtide/harmonics-dwf-20100529-nonfree.tcd"
+    opened <- openTideDb defaultTideDbPath
 
     unless opened $ error "Cannot open tide database"
 

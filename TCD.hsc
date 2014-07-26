@@ -199,6 +199,8 @@ nullSlackOffset = #{const NULLSLACKOFFSET}
 
 amplitudeEpsilon = 0.00005 -- #{const AMPLITUDE_EPSILON}
 
+defaultTideDbPath = "/usr/share/xtide/harmonics-dwf-20100529-nonfree.tcd"
+
 openTideDb :: String -> IO Bool
 openTideDb filepath = do
     withCString filepath $ \cstr ->
