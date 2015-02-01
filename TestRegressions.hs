@@ -8,13 +8,15 @@ instance Monoid ExitCode where
     mappend ExitSuccess b = b
     mappend a           _ = a
 
-main = mapM test [ ("TestTCD"         , "Hinkley")
-                 , ("TideConstituents", "2014")
-                 , ("TideAmplitudes"  , "Hinkley 2014")
-                 , ("Tides"           , "Hinkley '1961-05-26 14:29' '1961-05-28 06:38' 01:26")
-                 ]
-        >>= exitWith . mconcat
+tests =
+  [ ("TestTCD.out"         , "TestTCD"         , "Hinkley")
+  , ("TideConstituents.out", "TideConstituents", "2014")
+  , ("TideAmplitudes.out"  , "TideAmplitudes"  , "Hinkley 2014")
+  , ("Tides.out"           , "Tides"           , "Hinkley '1961-05-26 14:29' '1961-05-28 06:38' 01:26")
+  ]
 
-test (prog, args) = do
-    putStrLn $ "==== " ++ prog ++ " ===="
-    system $ printf "dist/build/%s/%s %s 2>&1 | diff %s.out -" prog prog args prog
+main = mapM test tests >>= exitWith . mconcat
+
+test (file, prog, args) = do
+    putStrLn $ "==== " ++ file ++ " ===="
+    system $ printf "dist/build/%s/%s %s 2>&1 | diff %s -" prog prog args file
