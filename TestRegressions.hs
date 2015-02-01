@@ -13,6 +13,8 @@ tests =
   , ("TideConstituents.out", "TideConstituents", "2014")
   , ("TideAmplitudes.out"  , "TideAmplitudes"  , "Hinkley 2014")
   , ("Tides.out"           , "Tides"           , "Hinkley '1961-05-26 14:29' '1961-05-28 06:38' 01:26")
+  , ("Tides-DST-begin.out" , "Tides"           , "Hinkley '1960-04-09 23:00' '1960-04-10 07:00' 00:20")
+  , ("Tides-DST-end.out"   , "Tides"           , "Hinkley '1960-10-01 22:00' '1960-10-02 05:00' 00:20")
   ]
 
 main = mapM test tests >>= exitWith . mconcat

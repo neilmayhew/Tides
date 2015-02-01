@@ -18,32 +18,31 @@ main = do
     let toTime     = readTime defaultTimeLocale "%F %H:%M"
         toInterval = realToFrac . timeOfDayToTime . readTime defaultTimeLocale "%H:%M"
 
-    (heights, events, units, tz) <- tides location  (toTime begin) (toTime end) (toInterval step)
+    (heights, events, units) <- tides location  (toTime begin) (toTime end) (toInterval step)
 
     -- Output tide heights for the period
 
     forM_ heights $ \(t, h) ->
-        putStrLn $ printf "%s %10.6f" (showTime tz t) h
+        putStrLn $ printf "%s %10.6f" (showTime t) h
 
     -- Output low and high tides for the period
 
     forM_ events $ \(Extremum (t, h) c) ->
         putStrLn $ printf "%s %6.2f %s  %s Tide"
-            (showTime tz t) h units (showType c)
+            (showTime t) h units (showType c)
   where
-    showTime :: TZ -> UTCTime -> String
-    showTime tz t = formatTime defaultTimeLocale "%F %l:%M %p %Z" zt
-      where t' = 30 `addUTCTime` t -- Round to nearest minute
-            z = timeZoneForUTCTime tz t'
-            zt = utcToZonedTime z t'
+    showTime :: ZonedTime -> String
+    showTime t = formatTime defaultTimeLocale "%F %l:%M %p %Z" t'
+      where t' = addZonedTime 30 t -- Display nearest minute
+    addZonedTime s t = utcToZonedTime (zonedTimeZone t) (s `addUTCTime` zonedTimeToUTC t)
     showType Maximum    = "High"
     showType Minimum    = "Low"
     showType Inflection = "Stationary" -- Never happens?
 
-type Prediction = (UTCTime, Double)
+type Prediction = (ZonedTime, Double)
 
 tides :: String -> LocalTime -> LocalTime -> NominalDiffTime
-         -> IO ([Prediction], [Extremum Prediction], String, TZ)
+         -> IO ([Prediction], [Extremum Prediction], String)
 tides station begin end step = do
 
     opened <- openTideDb defaultTideDbPath
@@ -73,8 +72,8 @@ tides station begin end step = do
     let beginUTC = localTimeToUTCTZ tz begin
         endUTC   = localTimeToUTCTZ tz end
         nextUTC  = step `addUTCTime` beginUTC
-        times = [beginUTC, nextUTC .. endUTC]
-        yhTimes = map utcTimeToYhTime times
+        utimes = [beginUTC, nextUTC .. endUTC]
+        yhTimes = map utcTimeToYhTime utimes
         startYear = yhYear (head yhTimes)
         yearNum = fromIntegral startYear - baseYear
 
@@ -92,6 +91,7 @@ tides station begin end step = do
         tide'   = evaluate series'
 
         heights = map (tide . yhHour) yhTimes
+        ztimes  = map (toZonedTime tz) utimes
 
         beginHour = yhHour (head yhTimes)
         endHour   = yhHour (last yhTimes)
@@ -100,9 +100,12 @@ tides station begin end step = do
         reversals = filter (\(t0, t1) -> tide' t0 * tide' t1 <= 0) slots
         events = concatMap findEvents reversals
         findEvents = map toTideEvent . extrema series (1/120)
-        toTideEvent = fmap . first $ yhTimeToUtcTime . YHTime startYear
+        toTideEvent = fmap . first $ toZonedTime tz . yhTimeToUtcTime . YHTime startYear
 
-    return (zip times heights, events, units, tz)
+    return (zip ztimes heights, events, units)
 
   where
     d2r d = d * (pi / 180)
+    toZonedTime :: TZ -> UTCTime -> ZonedTime
+    toZonedTime tz t = utcToZonedTime z t
+      where z = timeZoneForUTCTime tz t
