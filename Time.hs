@@ -13,12 +13,18 @@ data YHTime = YHTime
 
 utcTimeToYhTime u = YHTime y h
   where b = startOfTheYear y
-        h = realToFrac (u `diffUTCTime` b) / 3600
+        h = toHours $ u `diffUTCTime` b
         y = yearOfTime u
 
 yhTimeToUtcTime (YHTime y h) = u
   where b = startOfTheYear y
-        u = realToFrac (h * 3600) `addUTCTime` b
+        u = fromHours h `addUTCTime` b
+
+toHours :: NominalDiffTime -> Double
+toHours d = realToFrac d / 3600
+
+fromHours :: Double -> NominalDiffTime
+fromHours h = realToFrac (h * 3600)
 
 yearOfTime :: Num a => UTCTime -> a
 yearOfTime = fromInteger . fst . toOrdinalDate . utctDay

@@ -5,6 +5,8 @@ import Time
 
 import Control.Arrow (first)
 import Control.Monad
+import Data.Function
+import Data.List
 import Data.Time
 import Data.Time.Zones
 import System.Environment
@@ -67,45 +69,48 @@ tides station begin end step = do
     tz      <- loadSystemTZ . tail <=< getTZFile . tshTZFile . trHeader $ r
     units   <- getLevelUnits . trLevelUnits $ r
 
-    -- TODO: handle crossing year boundaries
-
     let beginUTC = localTimeToUTCTZ tz begin
         endUTC   = localTimeToUTCTZ tz end
         nextUTC  = step `addUTCTime` beginUTC
-        utimes = [beginUTC, nextUTC .. endUTC]
-        yhTimes = map utcTimeToYhTime utimes
-        startYear = yhYear (head yhTimes)
-        yearNum = fromIntegral startYear - baseYear
+        years    = groupBy ((==) `on` yearOfTime) [beginUTC, nextUTC .. endUTC]
 
-    nodeFactors  <- mapM (`getNodeFactor`  yearNum) indices
-    equilibriums <- mapM (`getEquilibrium` yearNum) indices
+    let tides' times = do
+            let startYear = yearOfTime $ head times
+                yearNum = fromIntegral startYear - baseYear
 
-    let amplitudes =           zipWith (*) nodeFactors  (trAmplitudes r)
-        phases     = map d2r $ zipWith (-) equilibriums (trEpochs r)
-        velocities = map d2r speeds
-        offset     = trDatumOffset r
+            nodeFactors  <- mapM (`getNodeFactor`  yearNum) indices
+            equilibriums <- mapM (`getEquilibrium` yearNum) indices
 
-        series  = makeSeries offset amplitudes velocities phases
-        series' = differentiate series
-        tide    = evaluate series
-        tide'   = evaluate series'
+            let amplitudes =           zipWith (*) nodeFactors  (trAmplitudes r)
+                phases     = map d2r $ zipWith (-) equilibriums (trEpochs r)
+                velocities = map d2r speeds
+                offset     = trDatumOffset r
 
-        heights = map (tide . yhHour) yhTimes
-        ztimes  = map (toZonedTime tz) utimes
+                series  = makeSeries offset amplitudes velocities phases
+                series' = differentiate series
+                tide    = evaluate series
+                tide'   = evaluate series'
 
-        beginHour = yhHour (head yhTimes)
-        endHour   = yhHour (last yhTimes)
-        hours = takeWhile (< endHour) [beginHour ..] ++ [endHour]
-        slots = zip hours (drop 1 hours)
-        reversals = filter (\(t0, t1) -> tide' t0 * tide' t1 <= 0) slots
-        events = concatMap findEvents reversals
-        findEvents = map toTideEvent . extrema series (1/120)
-        toTideEvent = fmap . first $ toZonedTime tz . yhTimeToUtcTime . YHTime startYear
+                heights = map (tide . toHours . timeOfTheYear) times
+                ztimes  = map (toZonedTime tz) times
 
-    return (zip ztimes heights, events, units)
+                beginHour = toHours . timeOfTheYear $ head times
+                endHour   = toHours . timeOfTheYear $ last times
+                hours = takeWhile (< endHour) [beginHour ..] ++ [endHour]
+                slots = zip hours (drop 1 hours)
+                reversals = filter (\(t0, t1) -> tide' t0 * tide' t1 <= 0) slots
+                events = concatMap findEvents reversals
+                findEvents = map toTideEvent . extrema series (1/120)
+                toTideEvent = fmap . first $ toZonedTime tz . yhTimeToUtcTime . YHTime startYear
 
-  where
-    d2r d = d * (pi / 180)
-    toZonedTime :: TZ -> UTCTime -> ZonedTime
-    toZonedTime tz t = utcToZonedTime z t
-      where z = timeZoneForUTCTime tz t
+            return (zip ztimes heights, events)
+
+          where
+            d2r d = d * (pi / 180)
+            toZonedTime :: TZ -> UTCTime -> ZonedTime
+            toZonedTime tz t = utcToZonedTime z t
+              where z = timeZoneForUTCTime tz t
+
+    predictions <- mapM tides' years
+
+    return (concatMap fst predictions, concatMap snd predictions, units)
