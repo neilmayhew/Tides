@@ -1,4 +1,7 @@
+module Main where
+
 import Time
+import Analysis
 
 import Control.Arrow (first, second)
 import Control.Monad
@@ -26,19 +29,23 @@ main = do
 
     heights <- getModelHeights location begin end step
 
-    forM_ heights $ \(t, h) ->
-        putStrLn $ formatPrediction t h
+    forM_ heights $
+        putStrLn . formatPrediction
 
     times <- getModelTimes location begin end
 
-    forM_ times $ \(t, h, ty) ->
-        putStrLn $ formatPrediction t h ++ printf " %-4s Tide" ty
+    forM_ times $
+        putStrLn . formatEvent
 
-formatPrediction :: ZonedTime -> Double -> String
-formatPrediction t h = printf "%s %9.6f" (formatTime defaultTimeLocale "%F %H:%M %Z" t) h
+type Prediction = (ZonedTime, Double)
+
+formatPrediction :: Prediction -> String
+formatPrediction (t, h) = printf "%s %9.6f" (formatTime defaultTimeLocale "%F %H:%M %Z" t) h
+formatEvent :: Extremum Prediction -> String
+formatEvent (Extremum p c) = formatPrediction p ++ printf " %-4s Tide" (fmtXtType c)
 
 getModelHeights :: String -> LocalTime -> LocalTime -> NominalDiffTime
-                   -> IO [(ZonedTime, Double)]
+                   -> IO [Prediction]
 getModelHeights location begin end step = do
     let cmd = tideCmd location begin end (Just step) "m"
     map parseLine <$> run cmd
@@ -46,15 +53,16 @@ getModelHeights location begin end step = do
     parseLine = second read . parseXtTime
 
 getModelTimes :: String -> LocalTime -> LocalTime
-                 -> IO [(ZonedTime, Double, String)]
+                 -> IO [Extremum Prediction]
 getModelTimes location begin end = do
     let cmd = tideCmd location begin end Nothing "p" ++ " | sed '1,/^$/d'"
     map parseLine <$> run cmd
   where
-    parseLine s = (t, h, ty)
+    parseLine s = Extremum (t, h) c
       where (t, rest) = parseXtTime s
             [ht, _, ty, _] = words rest
             h = read ht
+            c = parseXtType ty
 
 tideCmd :: String -> LocalTime -> LocalTime -> Maybe NominalDiffTime -> String -> String
 tideCmd location begin end step mode =
@@ -68,6 +76,14 @@ readsXtTime   = readsTime  defaultTimeLocale "%F %l:%M %p %Z"
 parseXtTime s = case readsXtTime s of
     [x] -> x
     _   -> error $ "Can't parse time: " ++ s
+fmtXtType Maximum    = "High"
+fmtXtType Minimum    = "Low"
+fmtXtType Inflection = "Stationary" -- Never happens?
+parseXtType t = case t of
+    "Low" -> Minimum
+    "High" -> Maximum
+    _ -> error $ "Unknown tide type: " ++ t
+
 
 data PredictionInterval = PredictionInterval
     { prBegin :: UTCTime
