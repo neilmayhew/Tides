@@ -13,6 +13,7 @@ import Data.Time
 import Data.Time.Zones
 
 type Prediction = (ZonedTime, Double)
+type Event      = Extremum Prediction
 
 tides :: String -> LocalTime -> LocalTime -> NominalDiffTime
          -> IO ([Prediction], [Extremum Prediction], String)
@@ -71,7 +72,7 @@ tides station begin end step = do
                 slots = zip hours (drop 1 hours)
                 reversals = filter (\(t0, t1) -> tide' t0 * tide' t1 <= 0) slots
                 events = concatMap findEvents reversals
-                findEvents = map toTideEvent . extrema series (1/120)
+                findEvents = map toTideEvent . extrema series (1/240) -- 15s
                 toTideEvent = fmap . first $ toZonedTime tz . yhTimeToUtcTime . YHTime startYear
 
             return (zip ztimes heights, events)

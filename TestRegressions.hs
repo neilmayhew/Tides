@@ -2,6 +2,7 @@ import Data.Monoid
 import Text.Printf
 import System.Cmd
 import System.Exit
+import System.IO
 
 instance Monoid ExitCode where
     mempty = ExitSuccess
@@ -22,4 +23,5 @@ main = mapM test tests >>= exitWith . mconcat
 
 test (file, prog, args) = do
     putStrLn $ "==== " ++ file ++ " ===="
+    hFlush stdout
     system $ printf "dist/build/%s/%s %s 2>&1 | diff %s -" prog prog args file

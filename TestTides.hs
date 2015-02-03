@@ -1,11 +1,13 @@
 module Main where
 
+import Tides
 import Time
 import Analysis
 
 import Control.Arrow (first, second)
 import Control.Monad
 import Data.Functor
+import Data.List
 import Data.Time
 import HSH
 import System.Environment
@@ -19,7 +21,8 @@ main = do
     interval <- randomIO
 
     let zone = utc -- TODO: get from location
-        toLocal = utcToLocalTime zone
+        toLocal = clampTime . utcToLocalTime zone
+        clampTime (LocalTime d t) = LocalTime d t { todSec = 0 }
         readTime'    = readTime defaultTimeLocale "%F %H:%M"
         readInterval = realToFrac . timeOfDayToTime . readTime defaultTimeLocale "%H:%M"
 
@@ -27,21 +30,38 @@ main = do
             then (toLocal $ prBegin interval, toLocal $ prEnd interval, prStep interval)
             else (readTime' $ args !! 0, readTime' $ args !! 1, readInterval $ args !! 2)
 
-    predictions <- getModelPredictions location begin end step
+    when (null args) $
+        putStrLn $ intercalate " " [show begin, show end, show . timeToTimeOfDay . nominalToTime $ step]
 
-    forM_ predictions $
-        putStrLn . formatPrediction
+    modelPredictions <- getModelPredictions location begin end step
+    modelEvents      <- getModelEvents      location begin end
 
-    events <- getModelEvents location begin end
+    (predictions, events, _) <- tides location begin end step
 
-    forM_ events $
-        putStrLn . formatEvent
+    let predictionPairs = zip modelPredictions predictions
+        eventPairs      = zip modelEvents events
 
-type Prediction = (ZonedTime, Double)
-type Event = Extremum Prediction
+        eqPred  (t, h) (t', h') = eqTime t t' && abs (h - h') < 1e-6
+        eqEvent (Extremum (t, h) c) (Extremum (t', h') c') = (c == c') && abs (h - h') < 0.006
+        eqTime t t' = abs (zonedTimeToUTC t `diffUTCTime` zonedTimeToUTC t') < 60
+
+        predictionMismatches = filter (not . uncurry eqPred ) predictionPairs
+        eventMismatches      = filter (not . uncurry eqEvent) eventPairs
+
+    when (not . null $ predictionMismatches) $
+        putStrLn "Predictions don't match"
+
+    forM_ predictionMismatches $ \(a, b) ->
+        putStrLn $ formatPrediction a ++ " / " ++ formatPrediction b
+
+    when (not . null $ eventMismatches) $
+        putStrLn "Events don't match"
+
+    forM_ eventMismatches $ \(a, b) ->
+        putStrLn $ formatEvent a ++ " / " ++ formatEvent b
 
 formatPrediction :: Prediction -> String
-formatPrediction (t, h) = printf "%s %9.6f" (formatTime defaultTimeLocale "%F %H:%M %Z" t) h
+formatPrediction (t, h) = printf "%s %9.6f" (formatTime defaultTimeLocale "%F %H:%M:%S %Z" t) h
 formatEvent :: Event -> String
 formatEvent (Extremum p c) = formatPrediction p ++ printf " %-4s Tide" (fmtXtType c)
 
@@ -83,7 +103,6 @@ parseXtType t = case t of
     "High" -> Maximum
     _ -> error $ "Unknown tide type: " ++ t
 
-
 data PredictionInterval = PredictionInterval
     { prBegin :: UTCTime
     , prEnd   :: UTCTime
@@ -92,12 +111,13 @@ data PredictionInterval = PredictionInterval
 
 instance Random PredictionInterval where
     random = randomR (PredictionInterval periodStart periodEnd 0, PredictionInterval periodStart periodEnd 0)
-      where -- Period supported by current tide component database
-            periodStart = UTCTime (fromGregorian 1700 1 1) 0
-            periodEnd   = UTCTime (fromGregorian 2101 1 1) (-1)
+      where -- Period supported by current tide component database is 1700-2101
+            -- However, date code seems to have problems outside 1848-2037
+            periodStart = UTCTime (fromGregorian 1848 1 1) 0
+            periodEnd   = UTCTime (fromGregorian 2037 1 1) (-1)
     randomR (lo, hi) g = (PredictionInterval begin end step, g''')
       where (begin,   g'  ) = randomR (prBegin lo, prEnd hi) g
             (minutes, g'' ) = randomR (1, 120) g'
-            (number,  g''') = randomR (3, 37) g''
+            (number,  g''') = randomR (3, 97) g''
             step = realToFrac (minutes * 60 :: Int)
             end  = min (prEnd hi) $ (number * step) `addUTCTime` begin
