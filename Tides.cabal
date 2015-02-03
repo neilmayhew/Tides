@@ -20,7 +20,7 @@ library
   build-depends:       base >=4.5.0
 
 executable Tides
-  main-is:             Tides.hs
+  main-is:             TidesMain.hs
   extra-libraries:     tcd
   build-depends:       base >=4.5.0, Tides, time >= 1.4, old-locale >= 1.0, tz >= 0.0.0.5, random >= 1.0
 
