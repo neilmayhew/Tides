@@ -22,11 +22,16 @@ main = do
 
     let (highs, lows) = partition ((== Maximum) . exType) times
         cmp = comparing (snd . exPoint)
+        ranges = zipWith sub times $ tail times
+        sub (Extremum (t, h) c) (Extremum (_, h') _) = Extremum (t, abs (h - h')) c
 
     forM_ (take 10 $ sortBy (flip cmp) highs) $
         putStrLn . formatEvent
     putStrLn "..."
     forM_ (reverse $ take 10 $ sortBy cmp lows) $
+        putStrLn . formatEvent
+    putStrLn "---"
+    forM_ (take 10 $ sortBy (flip cmp) ranges) $
         putStrLn . formatEvent
 
 formatPrediction :: Prediction -> String
