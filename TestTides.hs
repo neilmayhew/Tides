@@ -27,34 +27,33 @@ main = do
             then (toLocal $ prBegin interval, toLocal $ prEnd interval, prStep interval)
             else (readTime' $ args !! 0, readTime' $ args !! 1, readInterval $ args !! 2)
 
-    heights <- getModelHeights location begin end step
+    predictions <- getModelPredictions location begin end step
 
-    forM_ heights $
+    forM_ predictions $
         putStrLn . formatPrediction
 
-    times <- getModelTimes location begin end
+    events <- getModelEvents location begin end
 
-    forM_ times $
+    forM_ events $
         putStrLn . formatEvent
 
 type Prediction = (ZonedTime, Double)
+type Event = Extremum Prediction
 
 formatPrediction :: Prediction -> String
 formatPrediction (t, h) = printf "%s %9.6f" (formatTime defaultTimeLocale "%F %H:%M %Z" t) h
-formatEvent :: Extremum Prediction -> String
+formatEvent :: Event -> String
 formatEvent (Extremum p c) = formatPrediction p ++ printf " %-4s Tide" (fmtXtType c)
 
-getModelHeights :: String -> LocalTime -> LocalTime -> NominalDiffTime
-                   -> IO [Prediction]
-getModelHeights location begin end step = do
+getModelPredictions :: String -> LocalTime -> LocalTime -> NominalDiffTime -> IO [Prediction]
+getModelPredictions location begin end step = do
     let cmd = tideCmd location begin end (Just step) "m"
     map parseLine <$> run cmd
   where
     parseLine = second read . parseXtTime
 
-getModelTimes :: String -> LocalTime -> LocalTime
-                 -> IO [Extremum Prediction]
-getModelTimes location begin end = do
+getModelEvents :: String -> LocalTime -> LocalTime -> IO [Event]
+getModelEvents location begin end = do
     let cmd = tideCmd location begin end Nothing "p" ++ " | sed '1,/^$/d'"
     map parseLine <$> run cmd
   where
