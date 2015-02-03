@@ -11,16 +11,18 @@ import System.Random
 import Text.Printf
 
 main = do
-    [location] <- getArgs
-
-    let zone = utc -- TODO: get from location
+    (location:args) <- getArgs
 
     interval <- randomIO
 
-    let begin = toLocal $ prBegin interval
-        end   = toLocal $ prEnd   interval
-        step  =           prStep  interval
+    let zone = utc -- TODO: get from location
         toLocal = utcToLocalTime zone
+        readTime'    = readTime defaultTimeLocale "%F %H:%M"
+        readInterval = realToFrac . timeOfDayToTime . readTime defaultTimeLocale "%H:%M"
+
+        (begin, end, step) = if null args
+            then (toLocal $ prBegin interval, toLocal $ prEnd interval, prStep interval)
+            else (readTime' $ args !! 0, readTime' $ args !! 1, readInterval $ args !! 2)
 
     heights <- getModelHeights location begin end step
 
