@@ -27,7 +27,7 @@ main = do
     forM_ heights $ \(t, h) ->
         putStrLn $ formatPrediction t h
 
-    times <- getModelTimes location begin end step
+    times <- getModelTimes location begin end
 
     forM_ times $ \(t, h, ty) ->
         putStrLn $ formatPrediction t h ++ printf " %-4s Tide" ty
@@ -38,15 +38,15 @@ formatPrediction t h = printf "%s %9.6f" (formatTime defaultTimeLocale "%F %H:%M
 getModelHeights :: String -> LocalTime -> LocalTime -> NominalDiffTime
                    -> IO [(ZonedTime, Double)]
 getModelHeights location begin end step = do
-    let cmd = tideCmd location begin end step "m"
+    let cmd = tideCmd location begin end (Just step) "m"
     map parseLine <$> run cmd
   where
     parseLine = second read . parseXtTime
 
-getModelTimes :: String -> LocalTime -> LocalTime -> NominalDiffTime
+getModelTimes :: String -> LocalTime -> LocalTime
                  -> IO [(ZonedTime, Double, String)]
-getModelTimes location begin end step = do
-    let cmd = tideCmd location begin end step "p" ++ " | sed '1,/^$/d'"
+getModelTimes location begin end = do
+    let cmd = tideCmd location begin end Nothing "p" ++ " | sed '1,/^$/d'"
     map parseLine <$> run cmd
   where
     parseLine s = (t, h, ty)
@@ -54,9 +54,11 @@ getModelTimes location begin end step = do
             [ht, _, ty, _] = words rest
             h = read ht
 
+tideCmd :: String -> LocalTime -> LocalTime -> Maybe NominalDiffTime -> String -> String
 tideCmd location begin end step mode =
-    printf "tide -l '%s' -b '%s' -e '%s' -s '%s' -em pSsMm -m %s 2>/dev/null"
-        location (fmtXtTime begin) (fmtXtTime end) (fmtXtInterval step) mode :: String
+    printf "tide -l '%s' -b '%s' -e '%s' -em pSsMm -m %s 2>/dev/null"
+        location (fmtXtTime begin) (fmtXtTime end) mode
+        ++ maybe "" (printf " -s '%s'" . fmtXtInterval) step
 
 fmtXtTime     = formatTime defaultTimeLocale "%F %H:%M"
 fmtXtInterval = formatTime defaultTimeLocale "%H:%M" . timeToTimeOfDay . realToFrac
