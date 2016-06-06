@@ -11,7 +11,6 @@ import Data.List
 import Data.Time
 import HSH
 import System.Environment
-import System.Locale (defaultTimeLocale)
 import System.Random
 import Text.Printf
 

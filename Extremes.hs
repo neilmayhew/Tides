@@ -8,7 +8,6 @@ import Control.Monad (forM_)
 import Data.List
 import Data.Ord
 import Data.Time
-import System.Locale (defaultTimeLocale)
 import Text.Printf
 
 main = do

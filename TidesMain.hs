@@ -6,7 +6,6 @@ import Analysis
 import Control.Monad
 import Data.Time
 import System.Environment
-import System.Locale (defaultTimeLocale)
 import Text.Printf
 
 main = do
