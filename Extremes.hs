@@ -11,11 +11,13 @@ import Data.Time
 import Text.Printf
 
 main = do
-    let readTime' = readTime defaultTimeLocale "%F %H:%M"
-        begin = readTime' "1700-01-01 00:00"
-        end   = readTime' "2101-01-01 00:00"
-        step  = realToFrac (10 * 24 * 60 * 60)
-        location = "Hinkley"
+    let parseTime' :: ParseTime t => String -> String -> t
+        parseTime' = parseTimeOrError True defaultTimeLocale
+        toTime     = parseTime' "%F %H:%M"
+        begin      = toTime "1700-01-01 00:00"
+        end        = toTime "2101-01-01 00:00"
+        step       = realToFrac (10 * 24 * 60 * 60)
+        location   = "Hinkley"
 
     (_, times, _) <- tides location begin end step
 

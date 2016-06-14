@@ -22,12 +22,14 @@ main = do
     let zone = utc -- TODO: get from location
         toLocal = clampTime . utcToLocalTime zone
         clampTime (LocalTime d t) = LocalTime d t { todSec = 0 }
-        readTime'    = readTime defaultTimeLocale "%F %H:%M"
-        readInterval = realToFrac . timeOfDayToTime . readTime defaultTimeLocale "%H:%M"
+        parseTime' :: ParseTime t => String -> String -> t
+        parseTime' = parseTimeOrError True defaultTimeLocale
+        toTime     = parseTime' "%F %H:%M"
+        toInterval = realToFrac . timeOfDayToTime . parseTime' "%H:%M"
 
         (begin, end, step) = if null args
             then (toLocal $ prBegin interval, toLocal $ prEnd interval, prStep interval)
-            else (readTime' $ args !! 0, readTime' $ args !! 1, readInterval $ args !! 2)
+            else (toTime $ args!!0, toTime $ args!!1, toInterval $ args!!2)
 
     when (null args) $
         putStrLn $ intercalate " " [show begin, show end, show . timeToTimeOfDay . nominalToTime $ step]
@@ -88,9 +90,9 @@ tideCmd location begin end step mode =
         location (fmtXtTime begin) (fmtXtTime end) mode
         ++ maybe "" (printf " -s '%s'" . fmtXtInterval) step
 
-fmtXtTime     = formatTime defaultTimeLocale "%F %H:%M"
-fmtXtInterval = formatTime defaultTimeLocale "%H:%M" . timeToTimeOfDay . realToFrac
-readsXtTime   = readsTime  defaultTimeLocale "%F %l:%M %p %Z"
+fmtXtTime     = formatTime     defaultTimeLocale "%F %H:%M"
+fmtXtInterval = formatTime     defaultTimeLocale "%H:%M" . timeToTimeOfDay . realToFrac
+readsXtTime   = readSTime True defaultTimeLocale "%F %l:%M %p %Z"
 parseXtTime s = case readsXtTime s of
     [x] -> x
     _   -> error $ "Can't parse time: " ++ s

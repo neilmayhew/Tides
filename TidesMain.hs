@@ -11,10 +11,12 @@ import Text.Printf
 main = do
     [location, begin, end, step] <- getArgs
 
-    let toTime     = readTime defaultTimeLocale "%F %H:%M"
-        toInterval = realToFrac . timeOfDayToTime . readTime defaultTimeLocale "%H:%M"
+    let parseTime' :: ParseTime t => String -> String -> t
+        parseTime' = parseTimeOrError True defaultTimeLocale
+        toTime     = parseTime' "%F %H:%M"
+        toInterval = realToFrac . timeOfDayToTime . parseTime' "%H:%M"
 
-    (heights, events, units) <- tides location  (toTime begin) (toTime end) (toInterval step)
+    (heights, events, units) <- tides location (toTime begin) (toTime end) (toInterval step)
 
     -- Output tide heights for the period
 

@@ -22,17 +22,17 @@ library
 executable Tides
   main-is:             TidesMain.hs
   extra-libraries:     tcd
-  build-depends:       base >=4.5.0, Tides, time >= 1.4, old-locale >= 1.0, tz >= 0.0.0.5, random >= 1.0
+  build-depends:       base >=4.5.0, Tides, time >= 1.5, tz >= 0.0.0.5, random >= 1.0
 
 executable Extremes
   main-is:             Extremes.hs
   extra-libraries:     tcd
-  build-depends:       base >=4.5.0, Tides, time >= 1.4, old-locale >= 1.0, tz >= 0.0.0.5, HSH >= 2.0, random >= 1.0
+  build-depends:       base >=4.5.0, Tides, time >= 1.5, tz >= 0.0.0.5, HSH >= 2.0, random >= 1.0
 
 executable TestTides
   main-is:             TestTides.hs
   extra-libraries:     tcd
-  build-depends:       base >=4.5.0, Tides, time >= 1.4, old-locale >= 1.0, tz >= 0.0.0.5, HSH >= 2.0, random >= 1.0
+  build-depends:       base >=4.5.0, Tides, time >= 1.5, tz >= 0.0.0.5, HSH >= 2.0, random >= 1.0
 
 executable TestTCD
   main-is:             TestTCD.hs
