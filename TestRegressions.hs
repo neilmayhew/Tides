@@ -1,6 +1,6 @@
 import Data.Monoid
 import Text.Printf
-import System.Cmd
+import System.Process
 import System.Exit
 import System.IO
 

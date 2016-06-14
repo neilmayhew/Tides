@@ -50,6 +50,6 @@ executable TideAmplitudes
   build-depends:       base >=4.5.0, Tides
 
 test-suite TestRegressions
-    type:              exitcode-stdio-1.0
-    main-is:           TestRegressions.hs
-    build-depends:     base >=4.5.0, process >=1.0
+  type:                exitcode-stdio-1.0
+  main-is:             TestRegressions.hs
+  build-depends:       base >=4.5.0, process >=1.0.1.1
