@@ -1,4 +1,5 @@
 import TCD
+import TCDExtra
 
 import Control.Monad
 import System.Environment
@@ -9,7 +10,7 @@ import Text.Printf
 main = do
     (station:date:_) <- getArgs
 
-    opened <- openTideDb defaultTideDbPath
+    opened <- openDefaultTideDb
 
     unless opened $ error "Cannot open tide database"
 

@@ -1,7 +1,12 @@
+{-# LANGUAGE CPP #-}
+
 module TCDExtra where
 
 import TCD
 import Data.Functor
+import Data.List
+import System.Directory
+import System.FilePath
 import Text.Printf
 
 -- This is designed to match libtcd's dump_tide_record as closely as possible
@@ -51,3 +56,18 @@ formatTideRecord r =
         else []
     constituents = zip3 [0..] (trAmplitudes r) (trEpochs r)
     showF x = printf "%.6f" x :: String
+
+#ifndef DEFAULT_TIDE_DB_PATH
+#define DEFAULT_TIDE_DB_PATH "/usr/share/xtide"
+#endif
+
+defaultTideDbPath :: String
+defaultTideDbPath = DEFAULT_TIDE_DB_PATH
+
+openDefaultTideDb :: IO Bool
+openDefaultTideDb = do
+    filenames <- getDirectoryContents defaultTideDbPath
+    let tcds = filter (".tcd" `isSuffixOf`) filenames
+    if null tcds
+        then return False
+        else openTideDb $ defaultTideDbPath </> (head tcds)

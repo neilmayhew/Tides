@@ -1,6 +1,7 @@
 module Tides where
 
 import TCD
+import TCDExtra
 import Harmonics
 import Analysis
 import Time
@@ -19,7 +20,7 @@ tides :: String -> LocalTime -> LocalTime -> NominalDiffTime
          -> IO ([Prediction], [Extremum Prediction], String)
 tides station begin end step = do
 
-    opened <- openTideDb defaultTideDbPath
+    opened <- openDefaultTideDb
     unless opened $ error "Cannot open tide database"
 
     hdr <- getTideDbHeader

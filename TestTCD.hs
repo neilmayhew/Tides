@@ -18,7 +18,7 @@ main = do
     putStr "amplitudeEpsilon: "
     print amplitudeEpsilon
 
-    opened <- openTideDb defaultTideDbPath
+    opened <- openDefaultTideDb
 
     unless opened $ error "Cannot open tide database"
 

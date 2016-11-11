@@ -15,39 +15,39 @@ build-type:          Simple
 cabal-version:       >=1.9.2
 
 library
-  exposed-modules:     TCD
+  exposed-modules:     TCD TCDExtra
   c-sources:           TCDAux.c
-  build-depends:       base >=4.5.0
+  build-depends:       base >=4.5.0, directory, filepath
 
 executable Tides
   main-is:             TidesMain.hs
   extra-libraries:     tcd
-  build-depends:       base >=4.5.0, Tides, time >= 1.5, tz >= 0.0.0.5, random >= 1.0
+  build-depends:       base >=4.5.0, Tides, directory, filepath, time >= 1.5, tz >= 0.0.0.5, random >= 1.0
 
 executable Extremes
   main-is:             Extremes.hs
   extra-libraries:     tcd
-  build-depends:       base >=4.5.0, Tides, time >= 1.5, tz >= 0.0.0.5, HSH >= 2.0, random >= 1.0
+  build-depends:       base >=4.5.0, Tides, directory, filepath, time >= 1.5, tz >= 0.0.0.5, HSH >= 2.0, random >= 1.0
 
 executable TestTides
   main-is:             TestTides.hs
   extra-libraries:     tcd
-  build-depends:       base >=4.5.0, Tides, time >= 1.5, tz >= 0.0.0.5, HSH >= 2.0, random >= 1.0
+  build-depends:       base >=4.5.0, Tides, directory, filepath, time >= 1.5, tz >= 0.0.0.5, HSH >= 2.0, random >= 1.0
 
 executable TestTCD
   main-is:             TestTCD.hs
   extra-libraries:     tcd
-  build-depends:       base >=4.5.0, Tides
+  build-depends:       base >=4.5.0, Tides, directory, filepath
 
 executable TideConstituents
   main-is:             TideConstituents.hs
   extra-libraries:     tcd
-  build-depends:       base >=4.5.0, Tides
+  build-depends:       base >=4.5.0, Tides, directory, filepath
 
 executable TideAmplitudes
   main-is:             TideAmplitudes.hs
   extra-libraries:     tcd
-  build-depends:       base >=4.5.0, Tides
+  build-depends:       base >=4.5.0, Tides, directory, filepath
 
 test-suite TestRegressions
   type:                exitcode-stdio-1.0
