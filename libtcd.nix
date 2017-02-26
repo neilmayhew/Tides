@@ -1,7 +1,4 @@
-{ nixpkgs ? import <nixpkgs> {} }:
-
-with nixpkgs;
-with pkgs;
+{ stdenv, fetchurl }:
 
 stdenv.mkDerivation {
   name = "libtcd";

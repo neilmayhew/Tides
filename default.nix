@@ -1,15 +1,12 @@
 # vim: et:sw=2:sts=2
 
-{ nixpkgs ? import <nixpkgs> {}, harmonicsType ? "free" }:
-
-with nixpkgs;
-with pkgs;
-with haskellPackages;
+{ stdenv, callPackage, haskellPackages, harmonicsType ? "free" }:
 
 let
-  tcd       = pkgs.callPackage ./libtcd.nix    {};
-  harmonics = pkgs.callPackage ./harmonics.nix { type = harmonicsType; };
+  tcd       = callPackage ./libtcd.nix    {};
+  harmonics = callPackage ./harmonics.nix { type = harmonicsType; };
 in
+  with haskellPackages;
   mkDerivation {
     pname = "Tides";
     version = "0.1.0.0";

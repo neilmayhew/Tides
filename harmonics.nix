@@ -1,6 +1,4 @@
-{ nixpkgs ? import <nixpkgs> {}, type ? "free" }:
-
-with nixpkgs;
+{ stdenv, fetchurl, type ? "free" }:
 
 let
   free = {
