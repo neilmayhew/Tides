@@ -1,6 +1,6 @@
 # vim: et:sw=2:sts=2
 
-{ stdenv, callPackage, haskellPackages, harmonicsType ? "free" }:
+{ stdenv, callPackage, haskellPackages, tzdata, harmonicsType ? "free" }:
 
 let
   tcd       = callPackage ./libtcd.nix    {};
@@ -18,6 +18,7 @@ in
     executableSystemDepends = [ tcd ];
     testHaskellDepends = [ base process ];
     configureFlags = [ "--ghc-option=-DDEFAULT_TIDE_DB_PATH=\"${harmonics}/share/xtide\"" ];
+    preCheck = "export TZDIR=${tzdata}/share/zoneinfo";
     description = "A program for exploring tidal prediction data";
     license = stdenv.lib.licenses.mit;
   }
