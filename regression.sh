@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 try()
 {
@@ -10,4 +10,4 @@ try()
 try TestTCD Hinkley
 try TideConstituents 2014
 try TideAmplitudes Hinkley 2014
-try Tides Hinkley 2014-06-13
+try Tides Hinkley '1961-05-26 14:29' '1961-05-28 06:38' 01:26
