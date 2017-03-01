@@ -27,7 +27,7 @@ executable Tides
 executable Extremes
   main-is:             Extremes.hs
   extra-libraries:     tcd
-  build-depends:       base >=4.5.0, Tides, directory, filepath, time >= 1.5, tz >= 0.0.0.5, HSH >= 2.0, random >= 1.0
+  build-depends:       base >=4.5.0, Tides, directory, filepath, time >= 1.5, tz >= 0.0.0.5, random >= 1.0
 
 executable SummarizeTCD
   main-is:             SummarizeTCD.hs
