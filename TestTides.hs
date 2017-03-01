@@ -32,7 +32,7 @@ main = do
             else (toTime $ args!!0, toTime $ args!!1, toInterval $ args!!2)
 
     when (null args) $
-        putStrLn $ intercalate " " [show begin, show end, show . timeToTimeOfDay . nominalToTime $ step]
+        putStrLn $ unwords [show begin, show end, show . timeToTimeOfDay . nominalToTime $ step]
 
     modelPredictions <- getModelPredictions location begin end step
     modelEvents      <- getModelEvents      location begin end
@@ -49,13 +49,13 @@ main = do
         predictionMismatches = filter (not . uncurry eqPred ) predictionPairs
         eventMismatches      = filter (not . uncurry eqEvent) eventPairs
 
-    when (not . null $ predictionMismatches) $
+    unless (null predictionMismatches) $
         putStrLn "Predictions don't match"
 
     forM_ predictionMismatches $ \(a, b) ->
         putStrLn $ formatPrediction a ++ " / " ++ formatPrediction b
 
-    when (not . null $ eventMismatches) $
+    unless (null eventMismatches) $
         putStrLn "Events don't match"
 
     forM_ eventMismatches $ \(a, b) ->

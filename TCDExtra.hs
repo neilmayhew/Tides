@@ -70,4 +70,4 @@ openDefaultTideDb = do
     let tcds = filter (".tcd" `isSuffixOf`) filenames
     if null tcds
         then return False
-        else openTideDb $ defaultTideDbPath </> (head tcds)
+        else openTideDb $ defaultTideDbPath </> head tcds
