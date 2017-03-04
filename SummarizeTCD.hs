@@ -1,11 +1,11 @@
 import TCD
-import TCDExtra
 
 import Control.Monad
 import Data.Set
 import System.Environment
 import Text.Printf
 
+main :: IO ()
 main = do
     (db:_) <- getArgs
 

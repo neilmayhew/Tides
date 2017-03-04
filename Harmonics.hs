@@ -18,10 +18,10 @@ makeSeries o cs fs ps = Series o $ zipWith3 Harmonic cs fs ps
 
 evaluate :: Series -> Double -> Double
 evaluate (Series o hs) x = o + sum (map (`evaluate1` x) hs)
-  where evaluate1 (Harmonic c s p) x = c * cos (s * x + p)
+  where evaluate1 (Harmonic c s p) x' = c * cos (s * x' + p)
 
 differentiate :: Series -> Series
-differentiate (Series o hs) = Series 0 (map differentiate1 hs)
+differentiate (Series _ hs) = Series 0 (map differentiate1 hs)
   where differentiate1 (Harmonic c s p) = Harmonic (c * s) s (p + (pi/2))
 
 type Point    = (Double, Double)

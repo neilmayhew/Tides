@@ -2,11 +2,10 @@ import TCD
 import TCDExtra
 
 import Control.Monad
-import System.Environment
-import System.Exit
-import System.IO (hPutStrLn, stderr)
+import System.Environment (getArgs)
 import Text.Printf
 
+main :: IO ()
 main = do
     (station:date:_) <- getArgs
 

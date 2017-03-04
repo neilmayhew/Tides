@@ -6,22 +6,24 @@ import Tides
 import Time
 import Analysis
 
-import Control.Arrow (first, second)
+import Control.Arrow (second)
 import Control.Monad
-import Data.Functor
-import Data.List
+import Data.Functor ((<$>))
 import Data.Time
-import Data.Time.Locale.Compat
+import Data.Time.Locale.Compat (TimeLocale, defaultTimeLocale)
 import HSH
 import System.Environment
 import System.Random
 import Text.Printf
 
 #if !MIN_VERSION_time(1,5,0)
+parseTimeOrError :: ParseTime t => Bool -> TimeLocale -> String -> String -> t
 parseTimeOrError _ = readTime
+readSTime :: ParseTime t => Bool -> TimeLocale -> String -> ReadS t
 readSTime _ = readsTime
 #endif
 
+main :: IO ()
 main = do
     (location:args) <- getArgs
 
@@ -51,7 +53,7 @@ main = do
         eventPairs      = zip modelEvents events
 
         eqPred  (t, h) (t', h') = eqTime t t' && abs (h - h') < 1e-6
-        eqEvent (Extremum (t, h) c) (Extremum (t', h') c') = (c == c') && abs (h - h') < 0.006
+        eqEvent (Extremum (t, h) c) (Extremum (t', h') c') = (c == c') && eqTime t t' && abs (h - h') < 0.006
         eqTime t t' = ztzName t == ztzName t' && abs (ztUTC t `diffUTCTime` ztUTC t') < 60
           where ztzName = timeZoneName . zonedTimeZone
                 ztUTC x = zonedTimeToUTC x { zonedTimeZone = utc }
@@ -100,15 +102,21 @@ tideCmd location begin end step mode =
         location (fmtXtTime begin) (fmtXtTime end) mode
         ++ maybe "" (printf " -s '%s'" . fmtXtInterval) step
 
+fmtXtTime     :: LocalTime -> String
 fmtXtTime     = formatTime     defaultTimeLocale "%F %H:%M"
+fmtXtInterval :: NominalDiffTime -> String
 fmtXtInterval = formatTime     defaultTimeLocale "%H:%M" . timeToTimeOfDay . realToFrac
+readsXtTime   :: ReadS ZonedTime
 readsXtTime   = readSTime True defaultTimeLocale "%F %l:%M %p %Z"
+parseXtTime   :: String -> (ZonedTime, String)
 parseXtTime s = case readsXtTime s of
     [x] -> x
     _   -> error $ "Can't parse time: " ++ s
+fmtXtType :: Criticality -> String
 fmtXtType Maximum    = "High"
 fmtXtType Minimum    = "Low"
 fmtXtType Inflection = "Stationary" -- Never happens?
+parseXtType :: String -> Criticality
 parseXtType t = case t of
     "Low" -> Minimum
     "High" -> Maximum

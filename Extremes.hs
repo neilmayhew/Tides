@@ -9,20 +9,22 @@ import Control.Monad (forM_)
 import Data.List
 import Data.Ord
 import Data.Time
-import Data.Time.Locale.Compat
+import Data.Time.Locale.Compat (TimeLocale, defaultTimeLocale)
 import Text.Printf
 
 #if !MIN_VERSION_time(1,5,0)
+parseTimeOrError :: ParseTime t => Bool -> TimeLocale -> String -> String -> t
 parseTimeOrError _ = readTime
 #endif
 
+main :: IO ()
 main = do
     let parseTime' :: ParseTime t => String -> String -> t
         parseTime' = parseTimeOrError True defaultTimeLocale
         toTime     = parseTime' "%F %H:%M"
         begin      = toTime "1700-01-01 00:00"
         end        = toTime "2101-01-01 00:00"
-        step       = realToFrac (10 * 24 * 60 * 60)
+        step       = realToFrac (10 * 24 * 60 * 60 :: Int)
         location   = "Hinkley"
 
     (_, times, _) <- tides location begin end step
@@ -45,6 +47,7 @@ formatPrediction :: Prediction -> String
 formatPrediction (t, h) = printf "%s %9.6f" (formatTime defaultTimeLocale "%F %H:%M %Z" t) h
 formatEvent :: Extremum Prediction -> String
 formatEvent (Extremum p c) = formatPrediction p ++ printf " %-4s Tide" (fmtXtType c)
+fmtXtType :: Criticality -> String
 fmtXtType Maximum    = "High"
 fmtXtType Minimum    = "Low"
 fmtXtType Inflection = "Stationary" -- Never happens?

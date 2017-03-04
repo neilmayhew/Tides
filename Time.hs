@@ -1,6 +1,8 @@
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+
 module Time where
 
-import Control.Arrow (first, second)
+import Control.Arrow (first)
 import Data.Time
 import Data.Time.Calendar.OrdinalDate
 import Data.Time.Clock.POSIX
@@ -11,11 +13,13 @@ data YHTime = YHTime
     , yhHour :: Double }
     deriving (Eq, Show, Ord)
 
+utcTimeToYhTime :: UTCTime -> YHTime
 utcTimeToYhTime u = YHTime y h
   where b = startOfTheYear y
         h = toHours $ u `diffUTCTime` b
         y = yearOfTime u
 
+yhTimeToUtcTime :: YHTime -> UTCTime
 yhTimeToUtcTime (YHTime y h) = u
   where b = startOfTheYear y
         u = fromHours h `addUTCTime` b
@@ -49,29 +53,31 @@ instance Enum UTCTime where
 
 instance Random DiffTime where
     random = first secondsToDiffTime . random
-    randomR (min, max) = first secondsToDiffTime . randomR (round min, round max)
+    randomR (from, to) = first secondsToDiffTime . randomR (round from, round to)
 
 instance Random NominalDiffTime where
     random = first timeToNominal . random
-    randomR (min, max) = first timeToNominal . randomR (nominalToTime min, nominalToTime max)
+    randomR (from, to) = first timeToNominal . randomR (nominalToTime from, nominalToTime to)
 
 instance Random TimeOfDay where
     random = first timeToTimeOfDay . randomR (0, 86399)
-    randomR (min, max) = first timeToTimeOfDay . randomR (timeOfDayToTime min, timeOfDayToTime max)
+    randomR (from, to) = first timeToTimeOfDay . randomR (timeOfDayToTime from, timeOfDayToTime to)
 
 instance Random Day where
     random = first ModifiedJulianDay . random
-    randomR (min, max) = first ModifiedJulianDay . randomR (toModifiedJulianDay min, toModifiedJulianDay max)
+    randomR (from, to) = first ModifiedJulianDay . randomR (toModifiedJulianDay from, toModifiedJulianDay to)
 
 instance Random LocalTime where
-    randomR (min, max) = first (utcToLocalTime utc) . randomR (localTimeToUTC utc min, localTimeToUTC utc max)
+    randomR (from, to) = first (utcToLocalTime utc) . randomR (localTimeToUTC utc from, localTimeToUTC utc to)
     random = first (utcToLocalTime utc) . random
 
 instance Random UTCTime where
-    randomR (min, max) = first (`addUTCTime` min) . randomR (0, max `diffUTCTime` min)
+    randomR (from, to) = first (`addUTCTime` from) . randomR (0, to `diffUTCTime` from)
     random g = (UTCTime d t, g'')
       where (d, g' ) = random g
             (t, g'') = first timeOfDayToTime $ random g'
 
-timeToNominal = realToFrac :: DiffTime -> NominalDiffTime
-nominalToTime = realToFrac :: NominalDiffTime -> DiffTime
+timeToNominal :: DiffTime -> NominalDiffTime
+timeToNominal = realToFrac
+nominalToTime :: NominalDiffTime -> DiffTime
+nominalToTime = realToFrac

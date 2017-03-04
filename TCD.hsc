@@ -2,7 +2,7 @@
 
 module TCD where
 
-import Control.Applicative
+import Control.Applicative ((<$>), (<*>))
 import Data.Int
 import Data.Word
 import Foreign.C.String
@@ -12,6 +12,8 @@ import Foreign.Marshal.Array
 import Foreign.Marshal.Utils
 import Foreign.Ptr
 import Foreign.Storable
+import Text.Printf (printf)
+import System.IO (hPutStrLn, stderr)
 
 #include <tcd.h>
 
@@ -54,7 +56,7 @@ instance Storable DatabaseHeader where
         <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, tzfiles          } hdr :: IO Word32))
         <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, legaleses        } hdr :: IO Word32))
         <*> (fromIntegral <$> (#{peek DB_HEADER_PUBLIC, pedigree_types   } hdr :: IO Word32))
-    poke hdr _ = return ()
+    poke _ _ = return ()
 
 data TideRecordType = ReferenceStation | SubordinateStation | UndefinedStation
     deriving (Eq, Show, Enum)
@@ -73,6 +75,7 @@ instance Storable TideRecordType where
         let c = case t of
                 ReferenceStation   -> #{const REFERENCE_STATION  }
                 SubordinateStation -> #{const SUBORDINATE_STATION}
+                UndefinedStation   -> error "Attempt to poke UndefinedStation TideRecordType"
         poke (castPtr p :: Ptr CUChar) c
 
 data TideStationHeader = TideStationHeader
@@ -98,10 +101,7 @@ instance Storable TideStationHeader where
         <*> (fromIntegral <$> (#{peek TIDE_STATION_HEADER, reference_station} hdr :: IO Int32  ))
         <*> (fromIntegral <$> (#{peek TIDE_STATION_HEADER, tzfile           } hdr :: IO Int16  ))
         <*> (peekCString   $  (#{ptr  TIDE_STATION_HEADER, name             } hdr              ))
-      where
-        toRecordType :: CUChar -> TideRecordType
-        toRecordType = toEnum . fromIntegral
-    poke hdr _  = return ()
+    poke _ _  = return ()
 
 data TideRecord = TideRecord
     { trHeader            :: TideStationHeader
@@ -142,6 +142,7 @@ data TideRecord = TideRecord
     , trEbbBegins         :: Int
     } deriving (Eq, Show)
 
+maxConstituents :: Int
 maxConstituents = #{const MAX_CONSTITUENTS}
 
 instance Storable TideRecord where
@@ -183,7 +184,7 @@ instance Storable TideRecord where
       where
         peekConstituents :: Ptr CFloat -> IO [Double]
         peekConstituents p = map realToFrac <$> peekArray maxConstituents p
-    poke rec _  = return ()
+    poke _ _  = return ()
 
 {- DWF: This value signifies "null" or "omitted" slack offsets
    (flood_begins, ebb_begins).  Zero is *not* the same. -}
@@ -192,11 +193,13 @@ instance Storable TideRecord where
    It turns out that offsets do exceed 24 hours (long story), but we
    should still be safe with the 60. -}
 
+nullSlackOffset :: Int
 nullSlackOffset = #{const NULLSLACKOFFSET}
 
 -- This is the level below which an amplitude rounds to zero.
 -- It should be exactly (0.5 / DEFAULT_AMPLITUDE_SCALE).
 
+amplitudeEpsilon :: Double
 amplitudeEpsilon = 0.00005 -- #{const AMPLITUDE_EPSILON}
 
 openTideDb :: String -> IO Bool
@@ -264,8 +267,10 @@ foreign import ccall safe "tcd.h get_nearest_partial_tide_record"
 dumpTideRecordNum :: Int -> IO ()
 dumpTideRecordNum num =
     alloca $ \prec -> do
-        c_read_tide_record (fromIntegral num) prec
-        c_dump_tide_record prec
+        n <- c_read_tide_record (fromIntegral num) prec
+        if n == (fromIntegral num)
+          then c_dump_tide_record prec
+          else hPutStrLn stderr $ printf "Tide record %d not found" num
 
 foreign import ccall safe "tcd.h dump_tide_record"
   c_dump_tide_record :: Ptr TideRecord -> IO ()

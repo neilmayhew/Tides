@@ -2,14 +2,13 @@ import TCD
 import TCDExtra
 
 import Control.Monad
-import Data.Functor
+import Data.Functor ((<$>))
 import Data.List
 import Data.Maybe
 import System.Environment
-import System.Exit
-import System.IO (hPutStrLn, stderr)
 import Text.Printf
 
+main :: IO ()
 main = do
     (station:_) <- getArgs
 

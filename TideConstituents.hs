@@ -4,10 +4,9 @@ import TCDExtra
 import Control.Monad (unless)
 import Data.List (zip5)
 import System.Environment (getArgs)
-import System.Exit
-import System.IO (hPutStrLn, stderr)
 import Text.Printf
 
+main :: IO ()
 main = do
     (date:_) <- getArgs
 

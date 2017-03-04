@@ -37,15 +37,16 @@ tides station begin end step = do
     (rn, r) <- readTideRecord num
     unless (rn == num) $ error "Cannot read record"
 
-    name    <- return . tshName . trHeader $ r
-    country <- getCountry . trCountry $ r
+    --name    <- return . tshName . trHeader $ r
+    --country <- getCountry . trCountry $ r
     tz      <- loadSystemTZ . tail <=< getTZFile . tshTZFile . trHeader $ r
     units   <- getLevelUnits . trLevelUnits $ r
 
     let beginUTC = localTimeToUTCTZ tz begin
         endUTC   = localTimeToUTCTZ tz end
         nextUTC  = step `addUTCTime` beginUTC
-        years    = groupBy ((==) `on` yearOfTime) [beginUTC, nextUTC .. endUTC]
+        years    = groupBy ((==) `on` yot) [beginUTC, nextUTC .. endUTC]
+        yot      = yearOfTime :: UTCTime -> Int
 
     let tides' times = do
             let startYear = yearOfTime $ head times
@@ -81,8 +82,8 @@ tides station begin end step = do
           where
             d2r d = d * (pi / 180)
             toZonedTime :: TZ -> UTCTime -> ZonedTime
-            toZonedTime tz t = utcToZonedTime z t
-              where z = timeZoneForUTCTime tz t
+            toZonedTime z t = utcToZonedTime z' t
+              where z' = timeZoneForUTCTime z t
 
     predictions <- mapM tides' years
 

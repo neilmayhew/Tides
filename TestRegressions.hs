@@ -1,4 +1,6 @@
-import Data.Monoid
+{-# OPTIONS_GHC -fno-warn-orphans #-}
+
+import Data.Monoid (Monoid, mempty, mappend, mconcat)
 import Text.Printf
 import System.Process
 import System.Exit
@@ -9,6 +11,7 @@ instance Monoid ExitCode where
     mappend ExitSuccess b = b
     mappend a           _ = a
 
+tests :: [(String, String, String)]
 tests =
   [ ("TestTCD.out"         , "TestTCD"         , "Hinkley")
   , ("TideConstituents.out", "TideConstituents", "2014")
@@ -19,8 +22,10 @@ tests =
   , ("Tides-YearEnd.out"   , "Tides"           , "Hinkley '2013-12-31 22:00' '2014-01-01 02:00' 00:05")
   ]
 
+main :: IO ()
 main = mapM test tests >>= exitWith . mconcat
 
+test :: (String, String, String) -> IO ExitCode
 test (file, prog, args) = do
     putStrLn $ "==== " ++ file ++ " ===="
     hFlush stdout

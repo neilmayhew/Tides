@@ -3,7 +3,7 @@
 module TCDExtra where
 
 import TCD
-import Data.Functor
+import Data.Functor ((<$>))
 import Data.List
 import System.Directory
 import System.FilePath

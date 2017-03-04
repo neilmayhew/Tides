@@ -7,14 +7,16 @@ import Analysis
 
 import Control.Monad
 import Data.Time
-import Data.Time.Locale.Compat
+import Data.Time.Locale.Compat (TimeLocale, defaultTimeLocale)
 import System.Environment
 import Text.Printf
 
 #if !MIN_VERSION_time(1,5,0)
+parseTimeOrError :: ParseTime t => Bool -> TimeLocale -> String -> String -> t
 parseTimeOrError _ = readTime
 #endif
 
+main :: IO ()
 main = do
     [location, begin, end, step] <- getArgs
 
