@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 module Main where
 
 import Tides
@@ -5,8 +7,13 @@ import Analysis
 
 import Control.Monad
 import Data.Time
+import Data.Time.Locale.Compat
 import System.Environment
 import Text.Printf
+
+#if !MIN_VERSION_time(1,5,0)
+parseTimeOrError _ = readTime
+#endif
 
 main = do
     [location, begin, end, step] <- getArgs

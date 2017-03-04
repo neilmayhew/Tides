@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 module Main where
 
 import Tides
@@ -9,10 +11,16 @@ import Control.Monad
 import Data.Functor
 import Data.List
 import Data.Time
+import Data.Time.Locale.Compat
 import HSH
 import System.Environment
 import System.Random
 import Text.Printf
+
+#if !MIN_VERSION_time(1,5,0)
+parseTimeOrError _ = readTime
+readSTime _ = readsTime
+#endif
 
 main = do
     (location:args) <- getArgs

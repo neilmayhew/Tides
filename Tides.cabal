@@ -16,90 +16,93 @@ library
         TCD
         TCDExtra
     build-depends:
-        base >=4.5.0,
-        directory -any,
-        filepath -any
+        base >=4.6.0.1 && <4.10,
+        directory >=1.2.0.1 && <1.4,
+        filepath >=1.3.0.1 && <1.5
     c-sources:
         TCDAux.c
 
 executable Tides
     main-is: TidesMain.hs
     build-depends:
-        base >=4.5.0,
-        Tides -any,
-        directory -any,
-        filepath -any,
-        time >=1.5,
-        tz >=0.0.0.5,
-        random >=1.0
+        base >=4.6.0.1 && <4.10,
+        directory >=1.2.0.1 && <1.4,
+        filepath >=1.3.0.1 && <1.5,
+        time >=1.4.0.1 && <1.7,
+        time-locale-compat >=0.1.1.3 && <0.2,
+        tz >=0.0.0.5 && <0.2,
+        random ==1.1.*,
+        Tides -any
     extra-libraries:
         tcd
 
 executable Extremes
     main-is: Extremes.hs
     build-depends:
-        base >=4.5.0,
-        Tides -any,
-        directory -any,
-        filepath -any,
-        time >=1.5,
-        tz >=0.0.0.5,
-        random >=1.0
+        base >=4.6.0.1 && <4.10,
+        directory >=1.2.0.1 && <1.4,
+        filepath >=1.3.0.1 && <1.5,
+        time >=1.4.0.1 && <1.7,
+        time-locale-compat >=0.1.1.3 && <0.2,
+        tz >=0.0.0.5 && <0.2,
+        random ==1.1.*,
+        Tides -any
     extra-libraries:
         tcd
 
 executable SummarizeTCD
     main-is: SummarizeTCD.hs
     build-depends:
-        base >=4.5.0,
-        Tides -any,
-        directory -any,
-        filepath -any,
-        containers -any
+        base >=4.6.0.1 && <4.10,
+        directory >=1.2.0.1 && <1.4,
+        filepath >=1.3.0.1 && <1.5,
+        containers >=0.5.0.0 && <0.6,
+        Tides -any
     extra-libraries:
         tcd
 
 executable TestTides
     main-is: TestTides.hs
     build-depends:
-        base >=4.5.0,
-        Tides -any,
-        directory -any,
-        filepath -any,
-        time >=1.5,
-        tz >=0.0.0.5,
-        HSH >=2.0,
-        random >=1.0
+        base >=4.6.0.1 && <4.10,
+        directory >=1.2.0.1 && <1.4,
+        filepath >=1.3.0.1 && <1.5,
+        time >=1.4.0.1 && <1.7,
+        time-locale-compat >=0.1.1.3 && <0.2,
+        tz >=0.0.0.5 && <0.2,
+        HSH >=2.1.2 && <2.2,
+        random ==1.1.*,
+        Tides -any
     extra-libraries:
         tcd
 
 executable TestTCD
     main-is: TestTCD.hs
     build-depends:
-        base >=4.5.0,
-        Tides -any,
-        directory -any,
-        filepath -any
+        base >=4.6.0.1 && <4.10,
+        directory >=1.2.0.1 && <1.4,
+        filepath >=1.3.0.1 && <1.5,
+        Tides -any
     extra-libraries:
         tcd
 
 executable TideConstituents
     main-is: TideConstituents.hs
     build-depends:
-        base >=4.5.0,
-        Tides -any,
-        directory -any,
-        filepath -any
+        base >=4.6.0.1 && <4.10,
+        directory >=1.2.0.1 && <1.4,
+        filepath >=1.3.0.1 && <1.5,
+        Tides -any
     extra-libraries:
         tcd
 
 executable TideAmplitudes
     main-is: TideAmplitudes.hs
     build-depends:
-        base >=4.5.0,
-        Tides -any,
-        directory -any,
-        filepath -any
+        base >=4.6.0.1 && <4.10,
+        directory >=1.2.0.1 && <1.4,
+        filepath >=1.3.0.1 && <1.5,
+        Tides -any
     extra-libraries:
         tcd
 
@@ -107,8 +110,8 @@ test-suite TestRegressions
     type: exitcode-stdio-1.0
     main-is: TestRegressions.hs
     build-depends:
-        base >=4.5.0,
-        process >=1.0.1.1,
+        base >=4.6.0.1 && <4.10,
+        process >=1.1.0.2 && <1.5,
         Tides -any
     extra-libraries:
         tcd

@@ -1,3 +1,5 @@
+{-# LANGUAGE CPP #-}
+
 module Main where
 
 import Tides
@@ -7,7 +9,12 @@ import Control.Monad (forM_)
 import Data.List
 import Data.Ord
 import Data.Time
+import Data.Time.Locale.Compat
 import Text.Printf
+
+#if !MIN_VERSION_time(1,5,0)
+parseTimeOrError _ = readTime
+#endif
 
 main = do
     let parseTime' :: ParseTime t => String -> String -> t
