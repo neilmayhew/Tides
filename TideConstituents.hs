@@ -1,8 +1,8 @@
 import TCD
 import TCDExtra
 
-import Control.Monad (unless)
-import Data.List (zip5)
+import Control.Monad (forM_, unless)
+import Data.List (sort, zip5)
 import System.Environment (getArgs)
 import Text.Printf
 
@@ -26,8 +26,19 @@ main = do
     nodeFactors  <- mapM (`getNodeFactor`  yearNum) indices
     equilibriums <- mapM (`getEquilibrium` yearNum) indices
 
-    putStrLn "  i Name             Speed Factor Equilibrium"
-    putStrLn "--- ---------- ----------- ------ -----------"
-    putStr . unlines $ map
-        (\(i, n, s, f, e) -> printf "%3d %-10s %11.7f %6.4f %6.2f" i n s f e)
-        (zip5 indices names speeds nodeFactors equilibriums)
+    let constituents = zip5 speeds indices names nodeFactors equilibriums
+
+    putStrLn "  i Name             Speed Factor Equilib       Period"
+    putStrLn "--- ---------- ----------- ------ ------- ------------"
+    forM_ (sort constituents) $
+        \(s, i, n, f, e) -> do
+            let p = showPeriod $ 360 / s
+            printf "%3d %-10s %11.7f %6.4f %7.2f %12s\n" i n s f e p
+
+showPeriod :: Double -> String
+showPeriod p =
+    let (h', m) = properFraction p :: (Int, Double)
+        (d , h) = quotRem h' 24
+    in concat
+        [ if d > 0 then printf "%d:%02d" d h else printf "%d" h
+        , printf ":%05.2f" (m*60) ]
