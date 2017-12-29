@@ -9,11 +9,13 @@ import Analysis
 
 import Control.Arrow (second)
 import Control.Monad
+import Data.Bool (bool)
 import Data.Functor ((<$>))
 import Data.Time
 import Data.Time.Locale.Compat (TimeLocale, defaultTimeLocale)
 import HSH
 import System.Environment
+import System.Exit
 import System.Random
 import Text.Printf
 
@@ -73,6 +75,8 @@ main = do
 
     forM_ eventMismatches $ \(a, b) ->
         putStrLn $ formatEvent a ++ " / " ++ formatEvent b
+
+    bool exitFailure exitSuccess $ null predictionMismatches && null eventMismatches
 
 formatPrediction :: Prediction -> String
 formatPrediction (t, h) = printf "%s %9.6f" (formatTime defaultTimeLocale "%F %H:%M:%S %Z" t) h
