@@ -57,7 +57,7 @@ main = do
 
         eqPred  (t, h) (t', h') = eqTime t t' && abs (h - h') < 1e-6
         eqEvent (Extremum (t, h) c) (Extremum (t', h') c') = (c == c') && eqTime t t' && abs (h - h') < 0.006
-        eqTime t t' = ztzName t == ztzName t' && abs (ztUTC t `diffUTCTime` ztUTC t') < 60
+        eqTime t t' = ztzName t == ztzName t' && abs (ztUTC t `diffUTCTime` ztUTC t') <= 90
           where ztzName = timeZoneName . zonedTimeZone
                 ztUTC x = zonedTimeToUTC x { zonedTimeZone = utc }
 
