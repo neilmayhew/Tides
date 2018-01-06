@@ -28,7 +28,7 @@ main = do
         step       = realToFrac (10 * 24 * 60 * 60 :: Int)
         location   = "Hinkley"
 
-    (_, times, _) <- tides location begin end step
+    (_, times, _, _) <- tides location begin end step
 
     let (highs, lows) = partition ((== Maximum) . exType) times
         cmp = comparing (snd . exPoint)

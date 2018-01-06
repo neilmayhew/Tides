@@ -26,7 +26,7 @@ main = do
         toTime     = parseTime' "%F %H:%M"
         toInterval = realToFrac . timeOfDayToTime . parseTime' "%H:%M"
 
-    (heights, events, units) <- tides location (toTime begin) (toTime end) (toInterval step)
+    (heights, events, units, _) <- tides location (toTime begin) (toTime end) (toInterval step)
 
     -- Output tide heights for the period
 

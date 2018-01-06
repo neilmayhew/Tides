@@ -17,7 +17,7 @@ type Prediction = (ZonedTime, Double)
 type Event      = Extremum Prediction
 
 tides :: String -> LocalTime -> LocalTime -> NominalDiffTime
-         -> IO ([Prediction], [Extremum Prediction], String)
+         -> IO ([Prediction], [Extremum Prediction], String, TZ)
 tides station begin end step = do
 
     opened <- openDefaultTideDb
@@ -87,4 +87,4 @@ tides station begin end step = do
 
     predictions <- mapM tides' years
 
-    return (concatMap fst predictions, concatMap snd predictions, units)
+    return (concatMap fst predictions, concatMap snd predictions, units, tz)

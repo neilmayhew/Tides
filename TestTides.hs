@@ -50,7 +50,7 @@ main = do
     modelPredictions <- getModelPredictions location begin end step
     modelEvents      <- getModelEvents      location begin end
 
-    (predictions, events, _) <- tides location begin end step
+    (predictions, events, _, _) <- tides location begin end step
 
     let predictionPairs = zip modelPredictions predictions
         eventPairs      = zip modelEvents events
