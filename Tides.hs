@@ -42,8 +42,8 @@ tides station begin end step = do
     tz      <- loadSystemTZ . tail <=< getTZFile . tshTZFile . trHeader $ r
     units   <- getLevelUnits . trLevelUnits $ r
 
-    let beginUTC = localTimeToUTCTZ tz begin
-        endUTC   = localTimeToUTCTZ tz end
+    let beginUTC = localTimeToUTCTZ' tz begin
+        endUTC   = localTimeToUTCTZ' tz end
         nextUTC  = step `addUTCTime` beginUTC
         years    = groupBy ((==) `on` yot) [beginUTC, nextUTC .. endUTC]
         yot      = yearOfTime :: UTCTime -> Int
@@ -88,3 +88,12 @@ tides station begin end step = do
     predictions <- mapM tides' years
 
     return (concatMap fst predictions, concatMap snd predictions, units, tz)
+
+-- Prefer the earlier time to the later time when LT is ambiguous
+-- This matches the behaviour of xtide
+localTimeToUTCTZ' :: TZ -> LocalTime -> UTCTime
+localTimeToUTCTZ' tz lt =
+  case localTimeToUTCFull tz lt of
+    LTUNone ut _ -> ut
+    LTUUnique ut _ -> ut
+    LTUAmbiguous ut _ _ _ -> ut
