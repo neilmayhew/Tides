@@ -1,5 +1,4 @@
 {-# LANGUAGE CPP #-}
-{-# OPTIONS_GHC -fno-warn-unused-imports #-}
 
 module Main where
 
@@ -13,7 +12,7 @@ import Data.Bool (bool)
 import Data.Functor ((<$>))
 import Data.Function (on)
 import Data.Time
-import Data.Time.Locale.Compat (TimeLocale, defaultTimeLocale)
+import Data.Time.Locale.Compat (defaultTimeLocale)
 import Data.Time.Zones (TZ, LocalToUTCResult(..), localTimeToUTCFull)
 import HSH
 import System.Environment
@@ -22,6 +21,7 @@ import System.Random
 import Text.Printf
 
 #if !MIN_VERSION_time(1,5,0)
+import Data.Time.Locale.Compat (TimeLocale)
 parseTimeOrError :: ParseTime t => Bool -> TimeLocale -> String -> String -> t
 parseTimeOrError _ = readTime
 readSTime :: ParseTime t => Bool -> TimeLocale -> String -> ReadS t
