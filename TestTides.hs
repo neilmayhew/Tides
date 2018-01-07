@@ -7,12 +7,14 @@ import Tides
 import Time
 import Analysis
 
-import Control.Arrow (second)
+import Control.Arrow (first, second)
 import Control.Monad
 import Data.Bool (bool)
 import Data.Functor ((<$>))
+import Data.Function (on)
 import Data.Time
 import Data.Time.Locale.Compat (TimeLocale, defaultTimeLocale)
+import Data.Time.Zones (TZ, LocalToUTCResult(..), localTimeToUTCFull)
 import HSH
 import System.Environment
 import System.Exit
@@ -47,19 +49,18 @@ main = do
     when (null args) $
         putStrLn $ unwords [show begin, show end, show . timeToTimeOfDay . nominalToTime $ step]
 
-    modelPredictions <- getModelPredictions location begin end step
-    modelEvents      <- getModelEvents      location begin end
+    (predictions, events, _, tz) <- tides location begin end step
 
-    (predictions, events, _, _) <- tides location begin end step
+    modelPredictions <- getModelPredictions tz location begin end step
+    modelEvents      <- getModelEvents      tz location begin end
 
     let predictionPairs = zip modelPredictions predictions
         eventPairs      = zip modelEvents events
 
         eqPred  (t, h) (t', h') = eqTime t t' && abs (h - h') < 1e-6
         eqEvent (Extremum (t, h) c) (Extremum (t', h') c') = (c == c') && eqTime t t' && abs (h - h') < 0.006
-        eqTime t t' = ztzName t == ztzName t' && abs (ztUTC t `diffUTCTime` ztUTC t') <= 90
+        eqTime t t' = ztzName t == ztzName t' && abs (t `diffZonedTime` t') <= 90
           where ztzName = timeZoneName . zonedTimeZone
-                ztUTC x = zonedTimeToUTC x { zonedTimeZone = utc }
 
         predictionMismatches = filter (not . uncurry eqPred ) predictionPairs
         eventMismatches      = filter (not . uncurry eqEvent) eventPairs
@@ -83,20 +84,20 @@ formatPrediction (t, h) = printf "%s %9.6f" (formatTime defaultTimeLocale "%F %H
 formatEvent :: Event -> String
 formatEvent (Extremum p c) = formatPrediction p ++ printf " %-4s Tide" (fmtXtType c)
 
-getModelPredictions :: String -> LocalTime -> LocalTime -> NominalDiffTime -> IO [Prediction]
-getModelPredictions location begin end step = do
+getModelPredictions :: TZ -> String -> LocalTime -> LocalTime -> NominalDiffTime -> IO [Prediction]
+getModelPredictions tz location begin end step = do
     let cmd = tideCmd location begin end (Just step) "m"
     map parseLine <$> run cmd
   where
-    parseLine = second read . parseXtTime
+    parseLine = second read . parseXtTime tz
 
-getModelEvents :: String -> LocalTime -> LocalTime -> IO [Event]
-getModelEvents location begin end = do
+getModelEvents :: TZ -> String -> LocalTime -> LocalTime -> IO [Event]
+getModelEvents tz location begin end = do
     let cmd = tideCmd location begin end Nothing "p" ++ " | sed '1,/^$/d'"
     map parseLine <$> run cmd
   where
     parseLine s = Extremum (t, h) c
-      where (t, rest) = parseXtTime s
+      where (t, rest) = parseXtTime tz s
             [ht, _, ty, _] = words rest
             h = read ht
             c = parseXtType ty
@@ -111,21 +112,48 @@ fmtXtTime     :: LocalTime -> String
 fmtXtTime     = formatTime     defaultTimeLocale "%F %H:%M"
 fmtXtInterval :: NominalDiffTime -> String
 fmtXtInterval = formatTime     defaultTimeLocale "%H:%M" . timeToTimeOfDay . realToFrac
+
 readsXtTime   :: ReadS ZonedTime
 readsXtTime   = readSTime True defaultTimeLocale "%F %l:%M %p %Z"
-parseXtTime   :: String -> (ZonedTime, String)
-parseXtTime s = case readsXtTime s of
-    [x] -> x
+parseXtTime   :: TZ -> String -> (ZonedTime, String)
+parseXtTime tz s = case readsXtTime s of
+    [x] -> first reifyZonedTime' x
     _   -> error $ "Can't parse time: " ++ s
+  where
+    eitherToError = either error id
+    reifyZonedTime' = eitherToError . reifyZonedTime tz
+
 fmtXtType :: Criticality -> String
 fmtXtType Maximum    = "High"
 fmtXtType Minimum    = "Low"
 fmtXtType Inflection = "Stationary" -- Never happens?
+
 parseXtType :: String -> Criticality
 parseXtType t = case t of
     "Low" -> Minimum
     "High" -> Maximum
     _ -> error $ "Unknown tide type: " ++ t
+
+-- Data.Time's %Z parsing doesn't create a real TimeZone, just a fake UTC
+-- one with the parsed abbreviation as its name. However, knowing the TZ
+-- does allow a valid local time with abbreviation to be converted into
+-- a real ZonedTime.
+reifyZonedTime :: TZ -> ZonedTime -> Either String ZonedTime
+reifyZonedTime tz zt@(ZonedTime t z) =
+    let zn = timeZoneName z
+    in case localTimeToUTCFull tz t of
+        LTUUnique      ut   z'@(TimeZone _ _ zn')   | zn' == zn -> Right $ utcToZonedTime z' ut
+        LTUAmbiguous   ut _ z'@(TimeZone _ _ zn') _ | zn' == zn -> Right $ utcToZonedTime z' ut
+        LTUAmbiguous _ ut _ z'@(TimeZone _ _ zn')   | zn' == zn -> Right $ utcToZonedTime z' ut
+        LTUNone _ _ -> Left $ "Non-existent local time: " ++ show zt
+        _           -> Left $ "Inappropriate zone abbreviation: " ++ show zt
+
+addZonedTime :: NominalDiffTime -> ZonedTime -> ZonedTime
+addZonedTime ndt zt = utcToZonedTime' . addUTCTime ndt . zonedTimeToUTC $ zt
+  where utcToZonedTime' = utcToZonedTime (zonedTimeZone zt)
+
+diffZonedTime :: ZonedTime -> ZonedTime -> NominalDiffTime
+diffZonedTime = diffUTCTime `on` zonedTimeToUTC
 
 data PredictionInterval = PredictionInterval
     { prBegin :: UTCTime
