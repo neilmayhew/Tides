@@ -21,7 +21,7 @@ library
         filepath >=1.3.0.1 && <1.5
     c-sources:
         TCDAux.c
-    ghc-options: -O2 -Wall
+    ghc-options: -Wall -Wextra
 
 executable Tides
     main-is: TidesMain.hs
@@ -36,7 +36,7 @@ executable Tides
         Tides -any
     extra-libraries:
         tcd
-    ghc-options: -O2 -Wall
+    ghc-options: -Wall -Wextra
 
 executable Extremes
     main-is: Extremes.hs
@@ -51,7 +51,7 @@ executable Extremes
         Tides -any
     extra-libraries:
         tcd
-    ghc-options: -O2 -Wall
+    ghc-options: -Wall -Wextra
 
 executable SummarizeTCD
     main-is: SummarizeTCD.hs
@@ -63,7 +63,7 @@ executable SummarizeTCD
         Tides -any
     extra-libraries:
         tcd
-    ghc-options: -O2 -Wall
+    ghc-options: -Wall -Wextra
 
 executable TestTides
     main-is: TestTides.hs
@@ -79,7 +79,7 @@ executable TestTides
         Tides -any
     extra-libraries:
         tcd
-    ghc-options: -O2 -Wall
+    ghc-options: -Wall -Wextra
 
 executable TestTCD
     main-is: TestTCD.hs
@@ -90,7 +90,7 @@ executable TestTCD
         Tides -any
     extra-libraries:
         tcd
-    ghc-options: -O2 -Wall
+    ghc-options: -Wall -Wextra
 
 executable TideConstituents
     main-is: TideConstituents.hs
@@ -101,7 +101,7 @@ executable TideConstituents
         Tides -any
     extra-libraries:
         tcd
-    ghc-options: -O2 -Wall
+    ghc-options: -Wall -Wextra
 
 executable TideAmplitudes
     main-is: TideAmplitudes.hs
@@ -112,7 +112,7 @@ executable TideAmplitudes
         Tides -any
     extra-libraries:
         tcd
-    ghc-options: -O2 -Wall
+    ghc-options: -Wall -Wextra
 
 test-suite TestRegressions
     type: exitcode-stdio-1.0
@@ -123,4 +123,4 @@ test-suite TestRegressions
         Tides -any
     extra-libraries:
         tcd
-    ghc-options: -O2 -Wall
+    ghc-options: -Wall -Wextra
