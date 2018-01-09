@@ -14,11 +14,12 @@ import Data.Function (on)
 import Data.Time
 import Data.Time.Locale.Compat (defaultTimeLocale)
 import Data.Time.Zones (TZ, LocalToUTCResult(..), localTimeToUTCFull)
-import HSH
+import HSH (run)
 import System.Environment
 import System.Exit
 import Test.QuickCheck
 import Text.Printf
+import Test.QuickCheck.Monadic as QCM (assert, monadicIO, run)
 
 #if !MIN_VERSION_time(1,5,0)
 import Data.Time.Locale.Compat (TimeLocale)
@@ -79,6 +80,15 @@ comparePredictions location begin end step = do
 
     return $ filter (not . uncurry eqPred ) predictionPairs
 
+prop_equalPredictions :: String -> PredictionInterval -> Property
+prop_equalPredictions location interval = monadicIO $ do
+    let zone = utc -- TODO: get from location
+        toLocal = clampTime . utcToLocalTime zone
+        clampTime (LocalTime d t) = LocalTime d t { todSec = 0 }
+        (begin, end, step) = (toLocal $ prBegin interval, toLocal $ prEnd interval, prStep interval)
+    predictionMismatches <- QCM.run $ comparePredictions location begin end step
+    assert $ null predictionMismatches
+
 compareEvents :: String -> LocalTime -> LocalTime -> NominalDiffTime -> IO [(Event, Event)]
 compareEvents location begin end step = do
     (_, events, _, tz) <- tides                  location begin end step
@@ -92,6 +102,15 @@ compareEvents location begin end step = do
 
     return $ filter (not . uncurry eqEvent) eventPairs
 
+prop_equalEvents :: String -> PredictionInterval -> Property
+prop_equalEvents location interval = monadicIO $ do
+    let zone = utc -- TODO: get from location
+        toLocal = clampTime . utcToLocalTime zone
+        clampTime (LocalTime d t) = LocalTime d t { todSec = 0 }
+        (begin, end, step) = (toLocal $ prBegin interval, toLocal $ prEnd interval, prStep interval)
+    eventMismatches <- QCM.run $ compareEvents location begin end step
+    assert $ null eventMismatches
+
 formatPrediction :: Prediction -> String
 formatPrediction (t, h) = printf "%s %9.6f" (formatTime defaultTimeLocale "%F %H:%M:%S %Z" t) h
 formatEvent :: Event -> String
@@ -100,14 +119,14 @@ formatEvent (Extremum p c) = formatPrediction p ++ printf " %-4s Tide" (fmtXtTyp
 getModelPredictions :: TZ -> String -> LocalTime -> LocalTime -> NominalDiffTime -> IO [Prediction]
 getModelPredictions tz location begin end step = do
     let cmd = tideCmd location begin end (Just step) "m"
-    map parseLine <$> run cmd
+    map parseLine <$> HSH.run cmd
   where
     parseLine = second read . parseXtTime tz
 
 getModelEvents :: TZ -> String -> LocalTime -> LocalTime -> IO [Event]
 getModelEvents tz location begin end = do
     let cmd = tideCmd location begin end Nothing "p" ++ " | sed '1,/^$/d'"
-    map parseLine <$> run cmd
+    map parseLine <$> HSH.run cmd
   where
     parseLine s = Extremum (t, h) c
       where (t, rest) = parseXtTime tz s
