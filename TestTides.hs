@@ -7,7 +7,7 @@ import Time
 import Analysis
 
 import Control.Arrow (first, second)
-import Control.Monad
+import Control.Monad (forM_, unless, when)
 import Data.Bool (bool)
 import Data.Functor ((<$>))
 import Data.Function (on)
@@ -15,11 +15,11 @@ import Data.Time
 import Data.Time.Locale.Compat (defaultTimeLocale)
 import Data.Time.Zones (TZ, LocalToUTCResult(..), localTimeToUTCFull)
 import HSH (run)
-import System.Environment
-import System.Exit
-import Test.QuickCheck
-import Text.Printf
+import System.Environment (getArgs)
+import System.Exit (exitFailure, exitSuccess)
+import Test.QuickCheck (Arbitrary(..), Property, choose, generate, sized)
 import Test.QuickCheck.Monadic as QCM (assert, monadicIO, run)
+import Text.Printf (printf)
 
 #if !MIN_VERSION_time(1,5,0)
 import Data.Time.Locale.Compat (TimeLocale)
