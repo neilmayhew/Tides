@@ -17,7 +17,7 @@ import Data.Time.Zones (TZ, LocalToUTCResult(..), localTimeToUTCFull)
 import HSH
 import System.Environment
 import System.Exit
-import System.Random
+import Test.QuickCheck
 import Text.Printf
 
 #if !MIN_VERSION_time(1,5,0)
@@ -32,7 +32,7 @@ main :: IO ()
 main = do
     (location:args) <- getArgs
 
-    interval <- randomIO
+    interval <- generate arbitrary
 
     let zone = utc -- TODO: get from location
         toLocal = clampTime . utcToLocalTime zone
@@ -161,15 +161,24 @@ data PredictionInterval = PredictionInterval
     , prStep  :: NominalDiffTime
     } deriving (Eq, Show)
 
-instance Random PredictionInterval where
-    random = randomR (PredictionInterval periodStart periodEnd 0, PredictionInterval periodStart periodEnd 0)
+instance Arbitrary PredictionInterval where
+
+    arbitrary = sized $ \number -> do
+        minutes <- choose (1, 120 :: Int)
+        begin <- choose (periodStart, periodEnd)
+        let step = realToFrac (minutes * 60)
+            end  = min periodEnd $ (realToFrac number * step) `addUTCTime` begin
+        return $ PredictionInterval begin end step
       where -- Period supported by current tide component database is 1700-2101
             -- However, date code seems to have problems outside 1848-2037
-            periodStart = UTCTime (fromGregorian 1848 1 1) 0
-            periodEnd   = UTCTime (fromGregorian 2037 1 1) (-1)
-    randomR (lo, hi) g = (PredictionInterval begin end step, g''')
-      where (begin,   g'  ) = randomR (prBegin lo, prEnd hi) g
-            (minutes, g'' ) = randomR (1, 120) g'
-            (number,  g''') = randomR (3, 97) g''
-            step = realToFrac (minutes * 60 :: Int)
-            end  = min (prEnd hi) $ (number * step) `addUTCTime` begin
+        periodStart = UTCTime (fromGregorian 1848 1 1) 0
+        periodEnd   = UTCTime (fromGregorian 2037 1 1) (-1)
+
+    shrink (PredictionInterval b e s) =
+        if e `diffUTCTime` b > s
+            then map single [b, b `plus` s .. e `minus` s]
+            else []
+      where
+        single t = PredictionInterval t (t `plus` s) s
+        plus  t d = addUTCTime d t
+        minus t d = addUTCTime (negate d) t

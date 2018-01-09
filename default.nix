@@ -18,7 +18,7 @@ in
     isLibrary = true;
     isExecutable = true;
     libraryHaskellDepends = [ base ];
-    executableHaskellDepends = [ base HSH random time time-locale-compat tz ];
+    executableHaskellDepends = [ base HSH random time time-locale-compat tz QuickCheck ];
     executableSystemDepends = [ tcd ];
     testHaskellDepends = [ base process ];
     configureFlags = [
