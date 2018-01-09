@@ -49,21 +49,8 @@ main = do
     when (null args) $
         putStrLn $ unwords [show begin, show end, show . timeToTimeOfDay . nominalToTime $ step]
 
-    (predictions, events, _, tz) <- tides location begin end step
-
-    modelPredictions <- getModelPredictions tz location begin end step
-    modelEvents      <- getModelEvents      tz location begin end
-
-    let predictionPairs = zip modelPredictions predictions
-        eventPairs      = zip modelEvents events
-
-        eqPred  (t, h) (t', h') = eqTime t t' && abs (h - h') < 1e-6
-        eqEvent (Extremum (t, h) c) (Extremum (t', h') c') = (c == c') && eqTime t t' && abs (h - h') < 0.006
-        eqTime t t' = ztzName t == ztzName t' && abs (t `diffZonedTime` t') <= 90
-          where ztzName = timeZoneName . zonedTimeZone
-
-        predictionMismatches = filter (not . uncurry eqPred ) predictionPairs
-        eventMismatches      = filter (not . uncurry eqEvent) eventPairs
+    predictionMismatches <- comparePredictions location begin end step
+    eventMismatches      <- compareEvents      location begin end step
 
     unless (null predictionMismatches) $
         putStrLn "Predictions don't match"
@@ -78,6 +65,32 @@ main = do
         putStrLn $ formatEvent a ++ " / " ++ formatEvent b
 
     bool exitFailure exitSuccess $ null predictionMismatches && null eventMismatches
+
+comparePredictions :: String -> LocalTime -> LocalTime -> NominalDiffTime -> IO [(Prediction, Prediction)]
+comparePredictions location begin end step = do
+    (predictions, _, _, tz) <- tides                  location begin end step
+    modelPredictions        <- getModelPredictions tz location begin end step
+
+    let predictionPairs = zip modelPredictions predictions
+
+        eqPred  (t, h) (t', h') = eqTime t t' && abs (h - h') < 1e-6
+        eqTime t t' = ztzName t == ztzName t' && abs (t `diffZonedTime` t') < 60
+          where ztzName = timeZoneName . zonedTimeZone
+
+    return $ filter (not . uncurry eqPred ) predictionPairs
+
+compareEvents :: String -> LocalTime -> LocalTime -> NominalDiffTime -> IO [(Event, Event)]
+compareEvents location begin end step = do
+    (_, events, _, tz) <- tides                  location begin end step
+    modelEvents        <- getModelEvents      tz location begin end
+
+    let eventPairs = zip modelEvents events
+
+        eqEvent (Extremum (t, h) c) (Extremum (t', h') c') = (c == c') && eqTime t t' && abs (h - h') < 0.006
+        eqTime t t' = ztzName t == ztzName t' && abs (t `diffZonedTime` t') <= 90
+          where ztzName = timeZoneName . zonedTimeZone
+
+    return $ filter (not . uncurry eqEvent) eventPairs
 
 formatPrediction :: Prediction -> String
 formatPrediction (t, h) = printf "%s %9.6f" (formatTime defaultTimeLocale "%F %H:%M:%S %Z" t) h
