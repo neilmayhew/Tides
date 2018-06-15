@@ -126,8 +126,5 @@ test-suite TestRegressions
     main-is: TestRegressions.hs
     build-depends:
         base >=4.6.0.1 && <4.11,
-        process >=1.1.0.2 && <1.7,
-        Tides -any
-    extra-libraries:
-        tcd
+        process >=1.1.0.2 && <1.7
     ghc-options: -Wall -Wextra
