@@ -21,6 +21,8 @@ in
     executableHaskellDepends = [ base HSH random time time-locale-compat tz QuickCheck ];
     executableSystemDepends = [ tcd ];
     testHaskellDepends = [ base process ];
+    enableSharedExecutables = false;
+    enableSharedLibraries = false;
     configureFlags = [
       "--ghc-option=-DDEFAULT_TIDE_DB_PATH=\"${harmonics}/share/xtide\""
     ];
