@@ -22,10 +22,9 @@ in
     inherit (origin) version sourceRoot;
     src = fetchurl { inherit (origin) url sha256; };
     installPhase = ''
-      shopt -s extglob
       mkdir -p $out/share/xtide/
       cp -a *.tcd $out/share/xtide/
       mkdir -p $out/share/doc/
-      cp -a !(*.tcd) $out/share/doc/
+      cp -a *.txt $out/share/doc/
     '';
   }
