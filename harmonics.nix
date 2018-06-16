@@ -27,5 +27,6 @@ in
       cp -a *.tcd $out/share/xtide/
       mkdir -p $out/share/doc/
       cp -a !(*.tcd) $out/share/doc/
+      rm -f $out/share/doc/env-vars
     '';
   }
