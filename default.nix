@@ -15,7 +15,7 @@ in
     pname = "Tides";
     version = "0.1.0.0";
     src = ./.;
-    isLibrary = true;
+    isLibrary = false;
     isExecutable = true;
     libraryHaskellDepends = [ base ];
     executableHaskellDepends = [ base HSH random time time-locale-compat tz QuickCheck ];
