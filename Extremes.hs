@@ -11,6 +11,7 @@ import Data.List
 import Data.Ord
 import Data.Time
 import Data.Time.Locale.Compat (TimeLocale, defaultTimeLocale)
+import System.Environment (getArgs)
 import Text.Printf
 
 #if !MIN_VERSION_time(1,5,0)
@@ -20,13 +21,14 @@ parseTimeOrError _ = readTime
 
 main :: IO ()
 main = do
+    (location:_) <- getArgs
+
     let parseTime' :: ParseTime t => String -> String -> t
         parseTime' = parseTimeOrError True defaultTimeLocale
         toTime     = parseTime' "%F %H:%M"
         begin      = toTime "1700-01-01 00:00"
         end        = toTime "2101-01-01 00:00"
         step       = realToFrac (10 * 24 * 60 * 60 :: Int)
-        location   = "Hinkley"
 
     (_, times, _, _) <- tides location begin end step
 
