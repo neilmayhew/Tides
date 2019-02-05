@@ -130,7 +130,9 @@ getModelEvents tz location begin end = do
   where
     parseLine s = Extremum (t, h) c
       where (t, rest) = parseXtTime tz s
-            [ht, _, ty, _] = words rest
+            (ht, ty) = case words rest of
+                [w0, _, w2, _] -> (w0, w2)
+                _ -> error $ "Wrong number of words in line: " ++ s
             h = read ht
             c = parseXtType ty
 
