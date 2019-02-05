@@ -1,15 +1,29 @@
+{-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-import Data.Monoid (Monoid, mempty, mappend, mconcat)
+import Data.Monoid (Monoid, mempty, mconcat)
 import Text.Printf
 import System.Process
 import System.Exit
 import System.IO
 
+#if MIN_VERSION_base(4,10,0)
+
+instance Semigroup ExitCode where
+    ExitSuccess <> b = b
+    a           <> _ = a
+
 instance Monoid ExitCode where
     mempty = ExitSuccess
+
+#else
+
+instance Monoid ExitCode where
     mappend ExitSuccess b = b
     mappend a           _ = a
+    mempty = ExitSuccess
+
+#endif
 
 tests :: [(String, String, String)]
 tests =
