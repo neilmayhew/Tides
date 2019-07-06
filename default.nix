@@ -34,6 +34,7 @@ in
       export PATH=${xtide}/bin:$PATH
     '';
     preCheck = "export TZDIR=${tzdata}/share/zoneinfo";
+    doCheck = (harmonicsType != "free");
     description = "A program for exploring tidal prediction data";
     license = stdenv.lib.licenses.mit;
   }
