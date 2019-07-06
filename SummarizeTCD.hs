@@ -42,3 +42,11 @@ main = do
     putStrLn $ printf "%f-%f latitude"  latMin latMax
     putStrLn $ printf "%f-%f longitude" lonMin lonMax
     putStrLn $ printf "%d timezones" (size zones)
+
+    forM_ [0..n-1] $ \i -> do
+
+        (ok, r) <- getPartialTideRecord i
+
+        unless ok $ error "Cannot read record"
+
+        putStrLn $ tshName r
