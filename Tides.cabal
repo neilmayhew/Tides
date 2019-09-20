@@ -125,7 +125,7 @@ executable TestTides
         tz >=0.0.0.5 && <0.2,
         HSH >=2.1.2 && <2.2,
         random ==1.1.*,
-        QuickCheck >=2.8 && <2.13,
+        QuickCheck >=2.8 && <2.14,
         Tides -any
     extra-libraries:
         tcd
