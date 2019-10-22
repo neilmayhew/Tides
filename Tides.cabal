@@ -24,9 +24,6 @@ library
     ghc-options:
        -Wall
        -Wcompat
-       -Wincomplete-record-updates
-       -Wincomplete-uni-patterns
-       -Wredundant-constraints
        -Werror
 
 executable Tides
@@ -46,9 +43,6 @@ executable Tides
     ghc-options:
        -Wall
        -Wcompat
-       -Wincomplete-record-updates
-       -Wincomplete-uni-patterns
-       -Wredundant-constraints
        -Werror
 
 executable Extremes
@@ -68,9 +62,6 @@ executable Extremes
     ghc-options:
        -Wall
        -Wcompat
-       -Wincomplete-record-updates
-       -Wincomplete-uni-patterns
-       -Wredundant-constraints
        -Werror
 
 executable SummarizeTCD
@@ -86,9 +77,6 @@ executable SummarizeTCD
     ghc-options:
        -Wall
        -Wcompat
-       -Wincomplete-record-updates
-       -Wincomplete-uni-patterns
-       -Wredundant-constraints
        -Werror
 
 executable SearchTCDs
@@ -108,9 +96,6 @@ executable SearchTCDs
     ghc-options:
        -Wall
        -Wcompat
-       -Wincomplete-record-updates
-       -Wincomplete-uni-patterns
-       -Wredundant-constraints
        -Werror
 
 executable TestTides
@@ -132,9 +117,6 @@ executable TestTides
     ghc-options:
        -Wall
        -Wcompat
-       -Wincomplete-record-updates
-       -Wincomplete-uni-patterns
-       -Wredundant-constraints
        -Werror
 
 executable TestTCD
@@ -150,9 +132,6 @@ executable TestTCD
     ghc-options:
        -Wall
        -Wcompat
-       -Wincomplete-record-updates
-       -Wincomplete-uni-patterns
-       -Wredundant-constraints
        -Werror
 
 executable TideConstituents
@@ -168,9 +147,6 @@ executable TideConstituents
     ghc-options:
        -Wall
        -Wcompat
-       -Wincomplete-record-updates
-       -Wincomplete-uni-patterns
-       -Wredundant-constraints
        -Werror
 
 executable TideAmplitudes
@@ -186,9 +162,6 @@ executable TideAmplitudes
     ghc-options:
        -Wall
        -Wcompat
-       -Wincomplete-record-updates
-       -Wincomplete-uni-patterns
-       -Wredundant-constraints
        -Werror
 
 test-suite TestRegressions
@@ -200,7 +173,4 @@ test-suite TestRegressions
     ghc-options:
        -Wall
        -Wcompat
-       -Wincomplete-record-updates
-       -Wincomplete-uni-patterns
-       -Wredundant-constraints
        -Werror
