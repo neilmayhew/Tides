@@ -65,7 +65,8 @@ defaultTideDbPath = DEFAULT_TIDE_DB_PATH
 
 openDefaultTideDb :: IO Bool
 openDefaultTideDb = do
-    filenames <- getDirectoryContents defaultTideDbPath
+    exists <- doesDirectoryExist defaultTideDbPath
+    filenames <- if exists then getDirectoryContents defaultTideDbPath else pure []
     let tcds = filter (".tcd" `isSuffixOf`) filenames
     if null tcds
         then return False
