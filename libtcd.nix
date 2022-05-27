@@ -1,4 +1,4 @@
-{ stdenv, fetchurl }:
+{ stdenv, lib, fetchurl }:
 
 stdenv.mkDerivation rec {
   name = "libtcd";
@@ -9,6 +9,6 @@ stdenv.mkDerivation rec {
   };
   meta = {
     description = "A software API for reading and writing Tide Constituent Database (TCD) files";
-    license = stdenv.lib.licenses.gpl3;
+    license = lib.licenses.gpl3;
   };
 }

@@ -1,13 +1,13 @@
 # vim: et:sw=2:sts=2
 
-{ stdenv, callPackage, haskellPackages, tzdata, harmonicsType ? "free" }:
+{ stdenv, lib, callPackage, haskellPackages, tzdata, harmonicsType ? "free" }:
 
 let
   tcd       = callPackage ./libtcd.nix    {};
   harmonics = callPackage ./harmonics.nix { type = harmonicsType; };
   xtide     = callPackage ./xtide.nix     {};
 
-  inherit (stdenv.lib) concatStringsSep;
+  inherit (lib) concatStringsSep;
 in
   with haskellPackages;
 
@@ -36,5 +36,5 @@ in
     preCheck = "export TZDIR=${tzdata}/share/zoneinfo";
     doCheck = (harmonicsType != "free");
     description = "A program for exploring tidal prediction data";
-    license = stdenv.lib.licenses.mit;
+    license = lib.licenses.mit;
   }

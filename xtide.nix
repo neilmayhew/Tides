@@ -17,6 +17,6 @@ in
     buildInputs = [ zlib libpng tcd xlibsWrapper libXpm libXaw Xaw3d ];
     meta = {
       description = "Harmonic tide clock and tide predictor";
-      license = stdenv.lib.licenses.gpl3;
+      license = lib.licenses.gpl3;
     };
   }
