@@ -1,9 +1,15 @@
-{ nixpkgs ? import <nixpkgs> {}, harmonicsType ? "free" }:
-
-with nixpkgs;
-with pkgs;
+{ nixpkgs ? import <nixpkgs> {}, compiler ? "default", harmonicsType ? "free" }:
 
 let
-	drv = callPackage ./default.nix { inherit harmonicsType; };
+
+  inherit (nixpkgs) pkgs;
+
+  haskellPackages = if compiler == "default"
+                       then pkgs.haskellPackages
+                       else pkgs.haskell.packages.${compiler};
+
+  drv = haskellPackages.callPackage ./default.nix { inherit harmonicsType; };
+
 in
-	if pkgs.lib.inNixShell then drv.env else drv
+
+  if pkgs.lib.inNixShell then drv.env else drv

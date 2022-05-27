@@ -1,6 +1,10 @@
 # vim: et:sw=2:sts=2
 
-{ stdenv, lib, callPackage, haskellPackages, tzdata, harmonicsType ? "free" }:
+{ stdenv, lib, callPackage, mkDerivation, harmonicsType ? "free"
+, base, HSH, random, time, time-locale-compat, tz, QuickCheck
+, process
+, tzdata
+}:
 
 let
   tcd       = callPackage ./libtcd.nix    {};
@@ -9,8 +13,6 @@ let
 
   inherit (lib) concatStringsSep;
 in
-  with haskellPackages;
-
   mkDerivation rec {
     pname = "Tides";
     version = "0.1.0.0";
