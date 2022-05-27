@@ -9,7 +9,7 @@ import Time
 import Control.Arrow (first)
 import Control.Monad (unless, (<=<))
 import Data.Function
-import Data.List
+import Data.List (groupBy)
 import Data.Time
 import Data.Time.Zones
 

@@ -1,7 +1,6 @@
 {-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
-import Data.Monoid (Monoid, mempty, mconcat)
 import Text.Printf
 import System.Process
 import System.Exit

@@ -9,10 +9,8 @@ import Analysis
 import Control.Arrow (first, second)
 import Control.Monad (forM_, unless, when)
 import Data.Bool (bool)
-import Data.Functor ((<$>))
 import Data.Function (on)
 import Data.Time
-import Data.Time.Locale.Compat (defaultTimeLocale)
 import Data.Time.Zones (TZ, LocalToUTCResult(..), localTimeToUTCFull)
 import HSH (run)
 import System.Environment (getArgs)

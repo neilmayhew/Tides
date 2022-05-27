@@ -3,8 +3,7 @@
 module TCDExtra where
 
 import TCD
-import Data.Functor ((<$>))
-import Data.List
+import Data.List (isSuffixOf)
 import System.Directory
 import System.FilePath
 import Text.Printf

@@ -2,8 +2,7 @@ import TCD
 import TCDExtra
 
 import Control.Monad
-import Data.Functor ((<$>))
-import Data.List
+import Data.List (findIndex)
 import Data.Maybe
 import System.Environment
 import Text.Printf

@@ -7,7 +7,7 @@ import Tides
 import Analysis
 
 import Control.Monad (forM_)
-import Data.List
+import Data.List (partition, sortBy)
 import Data.Ord
 import Data.Time
 import Data.Time.Locale.Compat (TimeLocale, defaultTimeLocale)

@@ -24,16 +24,16 @@ searchDb station db = do
     count <- hdrNumberOfRecords <$> getTideDbHeader
 
     let loop = do
-        num <- searchStation station
+            num <- searchStation station
 
-        when (num >= 0) $ do
-            (ok, r) <- getPartialTideRecord num
+            when (num >= 0) $ do
+                (ok, r) <- getPartialTideRecord num
 
-            unless ok $ fail "Cannot read record"
+                unless ok $ fail "Cannot read record"
 
-            putStrLn $ printf "%s\t%s\t%d/%d" db (tshName r) num count
+                putStrLn $ printf "%s\t%s\t%d/%d" db (tshName r) num count
 
-            loop
+                loop
 
     loop
 
