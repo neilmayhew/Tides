@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, type ? "free" }:
+{ stdenv, lib, fetchurl, type ? "free" }:
 
 let
   free = rec {
@@ -17,8 +17,6 @@ let
 in
   stdenv.mkDerivation {
     name = "xtide-data-${type}";
-    description = "Tidal harmonics database for libtcd (${type})";
-    #license = stdenv.lib.licenses.gpl3;
     inherit (origin) version sourceRoot;
     src = fetchurl { inherit (origin) url sha256; };
     installPhase = ''
@@ -29,4 +27,9 @@ in
       cp -a !(*.tcd) $out/share/doc/
       rm -f $out/share/doc/env-vars
     '';
+    meta = {
+      description = "Tidal harmonics database for libtcd (${type})";
+      license = with lib.licenses; if type == "free" then publicDomain else unfree;
+      maintainer = with lib.maintainers; [ neilmayhew ];
+    };
   }
