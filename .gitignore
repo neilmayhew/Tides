@@ -1,4 +1,4 @@
 .cabal-sandbox/
 /dist/
 /dist-newstyle/
-/hide/
+result
