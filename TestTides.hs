@@ -12,7 +12,7 @@ import Data.Bool (bool)
 import Data.Function (on)
 import Data.Time
 import Data.Time.Zones (TZ, LocalToUTCResult(..), localTimeToUTCFull)
-import HSH (run)
+import System.Process (readCreateProcess, shell)
 import System.Environment (getArgs)
 import System.Exit (exitFailure, exitSuccess)
 import Test.QuickCheck (Arbitrary(..), Property, choose, generate, sized)
@@ -117,14 +117,14 @@ formatEvent (Extremum p c) = formatPrediction p ++ printf " %-4s Tide" (fmtXtTyp
 getModelPredictions :: TZ -> String -> LocalTime -> LocalTime -> NominalDiffTime -> IO [Prediction]
 getModelPredictions tz location begin end step = do
     let cmd = tideCmd location begin end (Just step) "m"
-    map parseLine <$> HSH.run cmd
+    map parseLine . lines <$> readCreateProcess (shell cmd) ""
   where
     parseLine = second read . parseXtTime tz
 
 getModelEvents :: TZ -> String -> LocalTime -> LocalTime -> IO [Event]
 getModelEvents tz location begin end = do
     let cmd = tideCmd location begin end Nothing "p" ++ " | sed '1,/^$/d'"
-    map parseLine <$> HSH.run cmd
+    map parseLine . lines <$> readCreateProcess (shell cmd) ""
   where
     parseLine s = Extremum (t, h) c
       where (t, rest) = parseXtTime tz s

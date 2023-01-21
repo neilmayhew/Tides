@@ -113,7 +113,7 @@ executable TestTides
         time >=1.4.0.1 && <1.12,
         time-locale-compat >=0.1.1.3 && <0.2,
         tz >=0.0.0.5 && <0.2,
-        HSH >=2.1.2 && <2.2,
+        process >=1.2.3 && <1.7,
         random >=1.1 && <1.3,
         QuickCheck >=2.8 && <2.15,
         Tides -any
