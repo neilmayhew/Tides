@@ -43,7 +43,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y --no-install-recommends libtcd-dev
+        sudo apt-get install -y --no-install-recommends libtcd-dev xtide xtide-data xtide-data-nonfree
         cabal update
         cabal build --enable-tests --enable-benchmarks -f werror --only-dependencies
 
@@ -51,5 +51,8 @@ jobs:
       run: |
         cabal build --enable-tests --enable-benchmarks -f werror all
 
-    # - name: Run tests
-    #   run: cabal test all
+    - name: Run tests
+      run: |
+        export HFILE_PATH=$(dpkg -L xtide-data-nonfree | grep '\.tcd$' | head -n1)
+        cabal test all
+        cabal exec TestTides Hinkley
