@@ -2,10 +2,10 @@
 
 let
   free = rec {
-    version = "20190620";
+    version = "20191229";
     src = fetchurl {
-      url = "https://flaterco.com/files/xtide/harmonics-dwf-${version}-free.tar.bz2";
-      sha256 = "05pn97ls3igq3jjyy7kjcwzh937kl47sbk1b1xhjkhb10zrld5c7";
+      url = "https://flaterco.com/files/xtide/harmonics-dwf-${version}-free.tar.xz";
+      sha256 = "0dfd4cj10k6jh35anps65gzznq1r4qi1jjfdg5dvwyxla6m9hizi";
     };
     sourceRoot = "";
   };
