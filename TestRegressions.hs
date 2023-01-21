@@ -21,4 +21,4 @@ test :: (String, String, String) -> IO ExitCode
 test (file, prog, args) = do
     putStrLn $ "==== " ++ file ++ " ===="
     hFlush stdout
-    system $ printf "dist/build/%s/%s %s 2>&1 | diff %s -" prog prog args file
+    system $ printf "cabal exec %s %s | diff %s -" prog args file
