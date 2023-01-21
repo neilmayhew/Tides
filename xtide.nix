@@ -14,7 +14,7 @@ in
       url = "https://flaterco.com/files/xtide/xtide-${version}.tar.bz2";
       sha256 = "0cb9lhzs2asqlp0m505qgzlykwjlcq2rf81kk3kvcmdns67jw768";
     };
-    buildInputs = [ zlib libpng tcd xlibsWrapper libXpm libXaw Xaw3d ];
+    buildInputs = [ zlib libpng tcd libX11 libXext libXpm libXaw Xaw3d ];
     meta = {
       description = "Harmonic tide clock and tide predictor";
       license = lib.licenses.gpl3;
