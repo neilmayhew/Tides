@@ -10,8 +10,11 @@ let
     sourceRoot = "";
   };
   nonfree = rec {
-    version = "20111230";
-    src = Downloads/ftp.flaterco.com/xtide/harmonics-dwf-${version}-nonfree.tar.bz2;
+    version = "20100529";
+    src = fetchurl {
+      url = "http://deb.debian.org/debian/pool/non-free/x/xtide-data-nonfree/xtide-data-nonfree_${version}.orig.tar.bz2";
+      sha256 = "0i9cm6p9hm8857c8ras3qswnwpg2xb9ajlw677hj1jyjr6axvrbw";
+    };
     sourceRoot = ".";
   };
   origin = if type == "free" then free else nonfree;
