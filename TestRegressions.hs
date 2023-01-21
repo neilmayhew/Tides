@@ -1,28 +1,7 @@
-{-# LANGUAGE CPP #-}
-{-# OPTIONS_GHC -fno-warn-orphans #-}
-
-import Text.Printf
 import System.Process
 import System.Exit
 import System.IO
-
-#if MIN_VERSION_base(4,10,0)
-
-instance Semigroup ExitCode where
-    ExitSuccess <> b = b
-    a           <> _ = a
-
-instance Monoid ExitCode where
-    mempty = ExitSuccess
-
-#else
-
-instance Monoid ExitCode where
-    mappend ExitSuccess b = b
-    mappend a           _ = a
-    mempty = ExitSuccess
-
-#endif
+import Text.Printf
 
 tests :: [(String, String, String)]
 tests =
@@ -36,7 +15,7 @@ tests =
   ]
 
 main :: IO ()
-main = mapM test tests >>= exitWith . mconcat
+main = exitWith . maximum =<< traverse test tests
 
 test :: (String, String, String) -> IO ExitCode
 test (file, prog, args) = do
