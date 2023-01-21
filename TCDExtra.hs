@@ -1,10 +1,13 @@
-{-# LANGUAGE CPP #-}
-
-module TCDExtra where
+module TCDExtra
+    ( formatTideRecord
+    , openDefaultTideDb
+    ) where
 
 import TCD
 import Data.List (isSuffixOf)
+import Data.Maybe
 import System.Directory
+import System.Environment
 import System.FilePath
 import Text.Printf
 
@@ -56,18 +59,15 @@ formatTideRecord r =
     constituents = zip3 [0..] (trAmplitudes r) (trEpochs r)
     showF x = printf "%.6f" x :: String
 
-#ifndef DEFAULT_TIDE_DB_PATH
-#define DEFAULT_TIDE_DB_PATH "/usr/share/xtide"
-#endif
-
 defaultTideDbPath :: String
-defaultTideDbPath = DEFAULT_TIDE_DB_PATH
+defaultTideDbPath = "/usr/share/xtide"
 
 openDefaultTideDb :: IO Bool
 openDefaultTideDb = do
-    exists <- doesDirectoryExist defaultTideDbPath
-    filenames <- if exists then getDirectoryContents defaultTideDbPath else pure []
+    tideDbPath <- fromMaybe defaultTideDbPath <$> lookupEnv "HFILE_PATH"
+    exists <- doesDirectoryExist tideDbPath
+    filenames <- if exists then getDirectoryContents tideDbPath else pure []
     let tcds = filter (".tcd" `isSuffixOf`) filenames
     if null tcds
         then return False
-        else openTideDb $ defaultTideDbPath </> head tcds
+        else openTideDb $ tideDbPath </> head tcds

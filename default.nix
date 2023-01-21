@@ -24,13 +24,7 @@ in
     testHaskellDepends = [ base process ];
     enableSharedExecutables = false;
     enableSharedLibraries = false;
-    configureFlags = [
-      "--ghc-option=-DDEFAULT_TIDE_DB_PATH=\"${harmonics}/share/xtide\""
-    ];
     shellHook = ''
-      configure() {
-        cabal v1-configure --enable-tests '${concatStringsSep "' '" configureFlags}' "$@"
-      }
       export HFILE_PATH=${harmonics}/share/xtide
       export PATH=${xtide}/bin:$PATH
     '';
