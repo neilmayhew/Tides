@@ -20,8 +20,7 @@ tides :: String -> LocalTime -> LocalTime -> NominalDiffTime
          -> IO ([Prediction], [Extremum Prediction], String, TZ)
 tides station begin end step = do
 
-    opened <- openDefaultTideDb
-    unless opened $ error "Cannot open tide database"
+    num <- maybe (error "Cannot find station") pure =<< searchDbsForStation station
 
     hdr <- getTideDbHeader
 
@@ -30,9 +29,6 @@ tides station begin end step = do
         indices       = [0..nConstituents-1]
 
     speeds <- mapM getSpeed indices
-
-    num <- searchStation station
-    unless (num >= 0) $ error "Cannot find station"
 
     (rn, r) <- readTideRecord num
     unless (rn == num) $ error "Cannot read record"

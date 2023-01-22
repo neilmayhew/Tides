@@ -3,15 +3,14 @@ import TCDExtra
 
 import Control.Monad
 import System.Environment (getArgs)
+import System.Exit (die)
 import Text.Printf
 
 main :: IO ()
 main = do
     (station:date:_) <- getArgs
 
-    opened <- openDefaultTideDb
-
-    unless opened $ error "Cannot open tide database"
+    num <- maybe (die "Cannot find station") pure =<< searchDbsForStation station
 
     hdr <- getTideDbHeader
 
@@ -21,10 +20,6 @@ main = do
         indices = [0..nConstituents-1]
 
     nodeFactors  <- mapM (`getNodeFactor` yearNum) indices
-
-    num <- searchStation station
-
-    unless (num >= 0) $ error "Cannot find station"
 
     (rn, r) <- readTideRecord num
 

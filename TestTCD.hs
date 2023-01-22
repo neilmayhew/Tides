@@ -5,6 +5,7 @@ import Control.Monad
 import Data.List (findIndex)
 import Data.Maybe
 import System.Environment
+import System.Exit
 import Text.Printf
 
 main :: IO ()
@@ -16,9 +17,7 @@ main = do
     putStr "amplitudeEpsilon: "
     print amplitudeEpsilon
 
-    opened <- openDefaultTideDb
-
-    unless opened $ error "Cannot open tide database"
+    num <- maybe (die "Cannot find station") pure =<< searchDbsForStation station
 
     hdr <- getTideDbHeader
     putStr "getTideDbHeader: "
@@ -29,12 +28,8 @@ main = do
     putStrLn $ printf "number_of_years  : %d" $ hdrNumberOfYears   hdr
     putStrLn $ printf "number_of_records: %d" $ hdrNumberOfRecords hdr
 
-    num <- searchStation station
     putStr "searchStation: "
     print num
-
-    unless (num >= 0) $ error "Cannot find station"
-
     (rn, r) <- readTideRecord num
     putStr "readTideRecord: "
     print rn

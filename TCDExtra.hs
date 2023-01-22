@@ -3,6 +3,7 @@
 
 module TCDExtra
     ( formatTideRecord
+    , searchDbsForStation
     , openDefaultTideDb
     , findTideDbs
     , findTideDbs'
@@ -10,6 +11,7 @@ module TCDExtra
     ) where
 
 import TCD
+import Control.Monad (foldM)
 import Data.List (isSuffixOf)
 import System.Directory
 import System.Environment
@@ -63,6 +65,17 @@ formatTideRecord r =
         else []
     constituents = zip3 [0..] (trAmplitudes r) (trEpochs r)
     showF x = printf "%.6f" x :: String
+
+searchDbsForStation :: String -> IO (Maybe Int)
+searchDbsForStation name = tideDbSearchPath >>= findTideDbs >>= foldM search Nothing
+  where
+    search Nothing tcd = do
+        _ <- openTideDb tcd
+        index <- searchStation name
+        if index >= 0
+        then pure (Just index)
+        else pure Nothing
+    search x _ = pure x
 
 openDefaultTideDb :: IO Bool
 openDefaultTideDb = tideDbSearchPath >>= findTideDbs >>= \case
