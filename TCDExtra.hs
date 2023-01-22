@@ -1,11 +1,16 @@
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE MultiWayIf #-}
+
 module TCDExtra
     ( formatTideRecord
     , openDefaultTideDb
+    , findTideDbs
+    , findTideDbs'
+    , tideDbSearchPath
     ) where
 
 import TCD
 import Data.List (isSuffixOf)
-import Data.Maybe
 import System.Directory
 import System.Environment
 import System.FilePath
@@ -59,15 +64,21 @@ formatTideRecord r =
     constituents = zip3 [0..] (trAmplitudes r) (trEpochs r)
     showF x = printf "%.6f" x :: String
 
-defaultTideDbPath :: String
-defaultTideDbPath = "/usr/share/xtide"
-
 openDefaultTideDb :: IO Bool
-openDefaultTideDb = do
-    tideDbPath <- fromMaybe defaultTideDbPath <$> lookupEnv "HFILE_PATH"
-    exists <- doesDirectoryExist tideDbPath
-    filenames <- if exists then getDirectoryContents tideDbPath else pure []
-    let tcds = filter (".tcd" `isSuffixOf`) filenames
-    if null tcds
-        then return False
-        else openTideDb $ tideDbPath </> head tcds
+openDefaultTideDb = tideDbSearchPath >>= findTideDbs >>= \case
+    (tcd : _) -> openTideDb tcd
+    _ -> return False
+
+findTideDbs :: [FilePath] -> IO [FilePath]
+findTideDbs = fmap concat . traverse findTideDbs'
+
+findTideDbs' :: FilePath -> IO [FilePath]
+findTideDbs' path = do
+    isDir <- doesDirectoryExist path
+    isFile <- doesFileExist path
+    if | isDir -> map (path </>) . filter (".tcd" `isSuffixOf`) <$> getDirectoryContents path
+       | isFile -> pure [path]
+       | otherwise -> pure []
+
+tideDbSearchPath :: IO [FilePath]
+tideDbSearchPath = maybe ["/usr/share/xtide"] splitSearchPath <$> lookupEnv "HFILE_PATH"
