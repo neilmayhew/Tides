@@ -203,8 +203,12 @@ amplitudeEpsilon = 0.00005 -- #{const AMPLITUDE_EPSILON}
 
 openTideDb :: String -> IO Bool
 openTideDb filepath = do
-    withCString filepath $ \cstr ->
+    result <- withCString filepath $ \cstr ->
         toBool <$> c_open_tide_db cstr
+    -- Work around the lack of the following:
+    -- libtcd 2.2.6: Fixed search_station not resetting the search index after a database close/open
+    (-1) <- searchStation "an impossible name that will never be found"
+    return result
 
 foreign import ccall safe "tcd.h open_tide_db"
   c_open_tide_db :: Ptr CChar -> IO CUChar
