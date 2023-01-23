@@ -1,7 +1,7 @@
 { stdenv, lib, fetchurl }:
 
 stdenv.mkDerivation rec {
-  name = "libtcd";
+  pname = "libtcd";
   version = "2.2.7-r2";
   src = fetchurl {
     url = "https://flaterco.com/files/xtide/libtcd-${version}.tar.bz2";

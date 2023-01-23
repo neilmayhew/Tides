@@ -8,7 +8,7 @@ let
   tcd = callPackage ./libtcd.nix {};
 in
   stdenv.mkDerivation rec {
-    name = "xtide";
+    pname = "xtide";
     version = "2.15.2";
     src = fetchurl {
       url = "https://flaterco.com/files/xtide/xtide-${version}.tar.bz2";

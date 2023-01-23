@@ -17,7 +17,7 @@ let
   origin = if type == "free" then free else nonfree;
 in
   stdenv.mkDerivation {
-    name = "xtide-data-${type}";
+    pname = "xtide-data-${type}";
     inherit (origin) version src sourceRoot;
     installPhase = ''
       shopt -s extglob
