@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE NamedFieldPuns #-}
 
 module Main where
 
@@ -6,7 +7,7 @@ import Tides
 import Time
 import Analysis
 
-import Control.Arrow (first, second)
+import Control.Arrow (second)
 import Control.Monad (forM_, unless, when)
 import Data.Bool (bool)
 import Data.Function (on)
@@ -17,6 +18,7 @@ import System.Environment (getArgs)
 import System.Exit (exitFailure, exitSuccess)
 import Test.QuickCheck (Arbitrary(..), Property, choose, generate, sized)
 import Test.QuickCheck.Monadic as QCM (assert, monadicIO, run)
+import Text.ParserCombinators.ReadP (readP_to_S)
 import Text.Printf (printf)
 
 #if !MIN_VERSION_time(1,5,0)
@@ -145,15 +147,20 @@ fmtXtTime     = formatTime     defaultTimeLocale "%F %H:%M"
 fmtXtInterval :: NominalDiffTime -> String
 fmtXtInterval = formatTime     defaultTimeLocale "%H:%M" . timeToTimeOfDay . realToFrac
 
-readsXtTime   :: ReadS ZonedTime
-readsXtTime   = readSTime True defaultTimeLocale "%F %l:%M %p %Z"
-parseXtTime   :: TZ -> String -> (ZonedTime, String)
-parseXtTime tz s = case readsXtTime s of
-    [x] -> first reifyZonedTime' x
+readSXtTime :: TZ -> ReadS ZonedTime
+readSXtTime tz = readP_to_S $ do
+    lt <- readPTime True defaultTimeLocale "%F %l:%M %p"
+    let knownTimeZones = case localTimeToUTCFull tz lt of
+            LTUUnique _ut z -> [z]
+            LTUAmbiguous _ut1 _ut2 z1 z2 -> [z1, z2]
+            LTUNone _ut z -> [z]
+        zonedLocale = defaultTimeLocale { knownTimeZones }
+    z <- readPTime True zonedLocale "%Z"
+    pure $ ZonedTime lt z
+parseXtTime :: TZ -> String -> (ZonedTime, String)
+parseXtTime tz s = case readSXtTime tz s of
+    [x] -> x
     _   -> error $ "Can't parse time: " ++ s
-  where
-    eitherToError = either error id
-    reifyZonedTime' = eitherToError . reifyZonedTime tz
 
 fmtXtType :: Criticality -> String
 fmtXtType Maximum    = "High"
@@ -165,20 +172,6 @@ parseXtType t = case t of
     "Low" -> Minimum
     "High" -> Maximum
     _ -> error $ "Unknown tide type: " ++ t
-
--- Data.Time's %Z parsing doesn't create a real TimeZone, just a fake UTC
--- one with the parsed abbreviation as its name. However, knowing the TZ
--- does allow a valid local time with abbreviation to be converted into
--- a real ZonedTime.
-reifyZonedTime :: TZ -> ZonedTime -> Either String ZonedTime
-reifyZonedTime tz zt@(ZonedTime t z) =
-    let zn = timeZoneName z
-    in case localTimeToUTCFull tz t of
-        LTUUnique      ut   z'@(TimeZone _ _ zn')   | zn' == zn -> Right $ utcToZonedTime z' ut
-        LTUAmbiguous   ut _ z'@(TimeZone _ _ zn') _ | zn' == zn -> Right $ utcToZonedTime z' ut
-        LTUAmbiguous _ ut _ z'@(TimeZone _ _ zn')   | zn' == zn -> Right $ utcToZonedTime z' ut
-        LTUNone _ _ -> Left $ "Non-existent local time: " ++ show zt
-        _           -> Left $ "Inappropriate zone abbreviation: " ++ show zt
 
 addZonedTime :: NominalDiffTime -> ZonedTime -> ZonedTime
 addZonedTime ndt zt = utcToZonedTime' . addUTCTime ndt . zonedTimeToUTC $ zt
