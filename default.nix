@@ -2,7 +2,7 @@
 
 { stdenv, lib, callPackage, mkDerivation, harmonicsType ? "free"
 , base, process, random, time, time-locale-compat, tz, QuickCheck
-, tzdata
+, pkgs
 }:
 
 let
@@ -27,8 +27,9 @@ in
     shellHook = ''
       export HFILE_PATH=${harmonics}/share/xtide
       export PATH=${xtide}/bin:$PATH
+      export TZDIR=${pkgs.tzdata}/share/zoneinfo
     '';
-    preCheck = "export TZDIR=${tzdata}/share/zoneinfo";
+    preCheck = shellHook;
     doCheck = (harmonicsType != "free");
     description = "A program for exploring tidal prediction data";
     license = lib.licenses.mit;
