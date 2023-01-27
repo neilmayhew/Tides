@@ -1,7 +1,9 @@
 {-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -fno-warn-unused-imports #-}
 
-module Main where
+#if IN_TEST_HARNESS
+module TidesMain where
+#endif
 
 import Tides
 import Analysis

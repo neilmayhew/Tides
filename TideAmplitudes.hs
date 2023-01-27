@@ -1,3 +1,9 @@
+{-# LANGUAGE CPP #-}
+
+#if IN_TEST_HARNESS
+module TideAmplitudes where
+#endif
+
 import TCD
 import TCDExtra
 
