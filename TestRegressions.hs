@@ -1,10 +1,11 @@
 import Control.Exception (bracket)
+import Control.Monad (unless)
+import Data.Bool (bool)
 import GHC.IO.Handle (hDuplicate, hDuplicateTo)
-import System.Process
+import System.Directory (getTemporaryDirectory, removeFile)
 import System.Environment (withArgs)
 import System.Exit
-import System.IO
-import Text.Printf
+import System.IO.Compat
 
 import qualified TestTCD
 import qualified TideConstituents
@@ -23,20 +24,39 @@ tests =
   ]
 
 main :: IO ()
-main = exitWith . maximum =<< traverse test tests
+main = bool exitFailure exitSuccess . and =<< traverse test tests
 
-test :: (String, IO (), [String]) -> IO ExitCode
+test :: (String, IO (), [String]) -> IO Bool
 test (file, prog, args) = do
     putStrLn $ "==== " ++ file ++ " ===="
-    let actual = "actual"
-    withArgs args $
-      withFile actual WriteMode $
-        redirectStdout prog
-    system $ printf "diff %s %s" file actual
+    actual <- withArgs args $
+        captureStdout prog
+    expected <- readFile file
+    let equal = actual == expected
+    unless equal $
+        putStrLn actual
+    pure equal
 
-redirectStdout :: IO a -> Handle -> IO a
-redirectStdout action h =
+captureStdout :: IO a -> IO String
+captureStdout action =
+  withTemporaryFile $ \h ->
+    redirectStdout h $ do
+      _ <- action
+      hFlush stdout
+      hSeek h AbsoluteSeek 0
+      hGetContents' h
+
+redirectStdout :: Handle -> IO a -> IO a
+redirectStdout h action =
   bracket
     (hFlush stdout *> hDuplicate stdout <* hDuplicateTo h stdout)
     (\saved -> hDuplicateTo saved stdout *> hClose saved)
     (const action)
+
+withTemporaryFile :: (Handle -> IO a) -> IO a
+withTemporaryFile inner = do
+  tmp <- getTemporaryDirectory
+  bracket
+    (openBinaryTempFile tmp "wtf-")
+    (\(name, h) -> hClose h >> removeFile name)
+    (inner . snd)

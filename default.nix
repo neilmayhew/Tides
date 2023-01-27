@@ -1,7 +1,7 @@
 # vim: et:sw=2:sts=2
 
 { stdenv, lib, callPackage, mkDerivation, harmonicsType ? "free"
-, base, process, random, time, time-locale-compat, tz, QuickCheck
+, base, base-compat, process, random, time, time-locale-compat, tz, QuickCheck
 , pkgs
 }:
 
@@ -19,7 +19,7 @@ in
     isLibrary = false;
     isExecutable = true;
     libraryHaskellDepends = [ base ];
-    executableHaskellDepends = [ base process random time time-locale-compat tz QuickCheck ];
+    executableHaskellDepends = [ base base-compat process random time time-locale-compat tz QuickCheck ];
     executableSystemDepends = [ tcd ];
     testHaskellDepends = [ base process ];
     enableSharedExecutables = false;
