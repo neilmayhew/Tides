@@ -4,3 +4,4 @@
 /.stack-work/
 /stack.yaml.lock
 result
+/.golden/*/actual
