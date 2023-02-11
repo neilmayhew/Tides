@@ -3,12 +3,16 @@
 
 #if IN_TEST_HARNESS
 module TestTCD where
+
+import Prelude hiding (IO, print, putStr, putStrLn)
+import System.IO.Fake
 #endif
 
 import TCD
 import TCDExtra
 
 import Control.Monad
+import Control.Monad.IO.Class (liftIO)
 import Data.List (findIndex)
 import Data.Maybe
 import System.Environment
@@ -16,7 +20,7 @@ import System.Exit
 import Text.Printf
 
 main :: IO ()
-main = getArgs >>= \case
+main = liftIO getArgs >>= \case
   [station] -> do
 
     putStr "nullSlackOffset: "
@@ -24,7 +28,7 @@ main = getArgs >>= \case
     putStr "amplitudeEpsilon: "
     print amplitudeEpsilon
 
-    num <- maybe (die "Cannot find station") pure =<< searchDbsForStation station
+    num <- maybe (liftIO $ die "Cannot find station") pure =<< searchDbsForStation station
 
     hdr <- getTideDbHeader
     putStr "getTideDbHeader: "
@@ -58,8 +62,12 @@ main = getArgs >>= \case
         cn = fromMaybe 0 $ findIndex (/= 0.0) amplitudes
 
     putStrLn "getEquilibriums:"
-    print =<< (map realToFrac <$> getEquilibriums cn :: IO [Float])
+    print . map toFloat =<< getEquilibriums cn
     putStrLn "getNodeFactors:"
-    print =<< (map realToFrac <$> getNodeFactors  cn :: IO [Float])
+    print . map toFloat =<< getNodeFactors cn
 
-  _ -> die . printf "Usage: %s STATION" =<< getProgName
+  _ -> liftIO $ die . printf "Usage: %s STATION" =<< getProgName
+
+  where
+    toFloat :: Real a => a -> Float
+    toFloat = realToFrac

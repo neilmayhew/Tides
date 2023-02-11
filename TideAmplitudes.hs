@@ -3,22 +3,26 @@
 
 #if IN_TEST_HARNESS
 module TideAmplitudes where
+
+import Prelude hiding (IO, print, putStr, putStrLn)
+import System.IO.Fake
 #endif
 
 import TCD
 import TCDExtra
 
 import Control.Monad
+import Control.Monad.IO.Class (liftIO)
 import System.Environment (getArgs, getProgName)
 import System.Exit (die)
 import Text.Printf
 
 main :: IO ()
-main = getArgs >>= \case
+main = liftIO getArgs >>= \case
 
   [station, date] -> do
 
-    num <- maybe (die "Cannot find station") pure =<< searchDbsForStation station
+    num <- maybe (liftIO $ die "Cannot find station") pure =<< searchDbsForStation station
 
     hdr <- getTideDbHeader
 
@@ -48,7 +52,7 @@ main = getArgs >>= \case
     putStrLn $ printf "Maximum amplitude: %.6f - %.6f = %.6f = %.6fft"
         (offset+maxamp) (offset-maxamp) (2*maxamp) (m2ft $ 2*maxamp)
 
-  _ -> die . printf "Usage: %s STATION DATE" =<< getProgName
+  _ -> liftIO $ die . printf "Usage: %s STATION DATE" =<< getProgName
 
   where
     innerProduct xs ys = sum $ zipWith (*) xs ys

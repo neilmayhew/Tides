@@ -3,21 +3,25 @@
 
 #if IN_TEST_HARNESS
 module TideConstituents where
+
+import Prelude hiding (IO, print, putStr, putStrLn)
+import System.IO.Fake
 #endif
 
 import TCD
 import TCDExtra
 
 import Control.Monad (forM_, unless)
+import Control.Monad.IO.Class (liftIO)
 import Data.List (sort, zip5)
 import System.Environment (getArgs, getProgName)
 import System.Exit
 import Text.Printf
 
 main :: IO ()
-main = getArgs >>= \case
+main = liftIO getArgs >>= \case
   [date] -> showConstituents =<< getConstituents date
-  _ -> die . printf "Usage: %s DATE" =<< getProgName
+  _ -> liftIO $ die . printf "Usage: %s DATE" =<< getProgName
 
 getConstituents :: String -> IO [(Double, Int, String, Double, Double)]
 getConstituents date = do
@@ -47,7 +51,7 @@ showConstituents constituents = do
     forM_ (sort constituents) $
         \(s, i, n, f, e) -> do
             let p = showPeriod $ 360 / s
-            printf "%3d %-10s %11.7f %6.4f %7.2f %12s\n" i n s f e p
+            putStrLn $ printf "%3d %-10s %11.7f %6.4f %7.2f %12s" i n s f e p
 
 showPeriod :: Double -> String
 showPeriod p =

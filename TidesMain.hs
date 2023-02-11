@@ -4,12 +4,16 @@
 
 #if IN_TEST_HARNESS
 module TidesMain where
+
+import Prelude hiding (IO, print, putStr, putStrLn)
+import System.IO.Fake
 #endif
 
 import Tides
 import Analysis
 
 import Control.Monad
+import Control.Monad.IO.Class (liftIO)
 import Data.Time
 import Data.Time.Locale.Compat (TimeLocale, defaultTimeLocale)
 import System.Environment
@@ -22,7 +26,7 @@ parseTimeOrError _ = readTime
 #endif
 
 main :: IO ()
-main = getArgs >>= \case
+main = liftIO getArgs >>= \case
 
   [location, begin, end, step] -> do
 
@@ -44,7 +48,7 @@ main = getArgs >>= \case
         putStrLn $ printf "%s %6.2f %s  %s Tide"
             (showTime t) h units (showType c)
 
-  _ -> die . printf "Usage: %s LOCATION BEGIN END STEP" =<< getProgName
+  _ -> liftIO $ die . printf "Usage: %s LOCATION BEGIN END STEP" =<< getProgName
 
   where
     showTime :: ZonedTime -> String

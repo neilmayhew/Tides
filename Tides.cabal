@@ -31,11 +31,18 @@ library
 
 executable Tides
     main-is: TidesMain.hs
-    other-modules: Analysis Harmonics TCDExtra Tides Time
+    other-modules:
+        System.IO.Fake
+        Analysis
+        Harmonics
+        TCDExtra
+        Tides
+        Time
     build-depends:
         base >=4.6.0.1 && <5,
         directory >=1.2.0.1 && <1.4,
         filepath >=1.3.0.1 && <1.5,
+        mtl >=2.2.2 && <2.4,
         time >=1.5 && <1.13,
         time-locale-compat >=0.1.1.3 && <0.2,
         tz >=0.0.0.5 && <0.2,
@@ -129,11 +136,14 @@ executable TestTides
 
 executable TestTCD
     main-is: TestTCD.hs
-    other-modules: TCDExtra
+    other-modules:
+        System.IO.Fake
+        TCDExtra
     build-depends:
         base >=4.6.0.1 && <5,
         directory >=1.2.0.1 && <1.4,
         filepath >=1.3.0.1 && <1.5,
+        mtl >=2.2.2 && <2.4,
         Tides -any
     extra-libraries:
         tcd
@@ -145,11 +155,14 @@ executable TestTCD
 
 executable TideConstituents
     main-is: TideConstituents.hs
-    other-modules: TCDExtra
+    other-modules:
+        System.IO.Fake
+        TCDExtra
     build-depends:
         base >=4.6.0.1 && <5,
         directory >=1.2.0.1 && <1.4,
         filepath >=1.3.0.1 && <1.5,
+        mtl >=2.2.2 && <2.4,
         Tides -any
     extra-libraries:
         tcd
@@ -161,11 +174,14 @@ executable TideConstituents
 
 executable TideAmplitudes
     main-is: TideAmplitudes.hs
-    other-modules: TCDExtra
+    other-modules:
+        System.IO.Fake
+        TCDExtra
     build-depends:
         base >=4.6.0.1 && <5,
         directory >=1.2.0.1 && <1.4,
         filepath >=1.3.0.1 && <1.5,
+        mtl >=2.2.2 && <2.4,
         Tides -any
     extra-libraries:
         tcd
@@ -179,6 +195,7 @@ test-suite TestRegressions
     type: exitcode-stdio-1.0
     main-is: TestRegressions.hs
     other-modules:
+        System.IO.Fake
         Analysis
         Harmonics
         TCDExtra
@@ -195,6 +212,7 @@ test-suite TestRegressions
         filepath >=1.3.0.1 && <1.5,
         hspec >=2.7.6,
         hspec-golden >=0.1.0.3,
+        mtl >=2.2.2 && <2.4,
         process >=1.2.3 && <1.7,
         random >=1.1 && <1.3,
         time >=1.5 && <1.13,
