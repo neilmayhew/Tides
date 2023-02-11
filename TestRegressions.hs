@@ -1,11 +1,10 @@
 import Control.Exception (bracket)
-import Control.Monad (unless)
-import Data.Bool (bool)
+import Data.Foldable (traverse_)
 import GHC.IO.Handle (hDuplicate, hDuplicateTo)
 import System.Directory (getTemporaryDirectory, removeFile)
 import System.Environment (withArgs)
-import System.Exit
 import System.IO.Compat
+import Test.Hspec
 
 import qualified TestTCD
 import qualified TideConstituents
@@ -24,18 +23,16 @@ tests =
   ]
 
 main :: IO ()
-main = bool exitFailure exitSuccess . and =<< traverse test tests
+main = hspec $
+  traverse_ test tests
 
-test :: (String, IO (), [String]) -> IO Bool
-test (file, prog, args) = do
-    putStrLn $ "==== " ++ file ++ " ===="
+test :: (String, IO (), [String]) -> Spec
+test (file, prog, args) =
+  it file $ do
     actual <- withArgs args $
-        captureStdout prog
+      captureStdout prog
     expected <- readFile file
-    let equal = actual == expected
-    unless equal $
-        putStrLn actual
-    pure equal
+    actual `shouldBe` expected
 
 captureStdout :: IO a -> IO String
 captureStdout action =
