@@ -8,6 +8,7 @@ import Time
 
 import Control.Arrow (first)
 import Control.Monad (unless, (<=<))
+import Control.Monad.IO.Class (MonadIO(..))
 import Data.Function
 import Data.List (groupBy)
 import Data.Time
@@ -16,8 +17,8 @@ import Data.Time.Zones
 type Prediction = (ZonedTime, Double)
 type Event      = Extremum Prediction
 
-tides :: String -> LocalTime -> LocalTime -> NominalDiffTime
-         -> IO ([Prediction], [Extremum Prediction], String, TZ)
+tides :: MonadIO m => String -> LocalTime -> LocalTime -> NominalDiffTime
+         -> m ([Prediction], [Extremum Prediction], String, TZ)
 tides station begin end step = do
 
     num <- maybe (error "Cannot find station") pure =<< searchDbsForStation station
@@ -35,7 +36,7 @@ tides station begin end step = do
 
     --name    <- return . tshName . trHeader $ r
     --country <- getCountry . trCountry $ r
-    tz      <- loadSystemTZ . tail <=< getTZFile . tshTZFile . trHeader $ r
+    tz      <- liftIO . loadSystemTZ . tail <=< getTZFile . tshTZFile . trHeader $ r
     units   <- getLevelUnits . trLevelUnits $ r
 
     let beginUTC = localTimeToUTCTZ' tz begin

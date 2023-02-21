@@ -12,6 +12,7 @@ module TCDExtra
 
 import TCD
 import Control.Monad (foldM)
+import Control.Monad.IO.Class (MonadIO(..))
 import Data.List (isSuffixOf)
 import System.Directory
 import System.Environment
@@ -20,11 +21,11 @@ import Text.Printf
 
 -- This is designed to match libtcd's dump_tide_record as closely as possible
 
-formatTideRecord :: TideRecord -> IO String
+formatTideRecord :: MonadIO m => TideRecord -> m String
 formatTideRecord r =
     unlines . (++ concatMap showConstituent constituents) <$> mapM formatField fields
   where
-    formatField :: (String, TideRecord -> IO String) -> IO String
+    formatField :: MonadIO m => (String, TideRecord -> m String) -> m String
     formatField (n, f) = printf "%s = %s" n <$> f r
     fields =
         [ ("Record number"        , return . show  . tshNumber           . trHeader)
@@ -66,7 +67,7 @@ formatTideRecord r =
     constituents = zip3 [0..] (trAmplitudes r) (trEpochs r)
     showF x = printf "%.6f" x :: String
 
-searchDbsForStation :: String -> IO (Maybe Int)
+searchDbsForStation :: MonadIO m => String -> m (Maybe Int)
 searchDbsForStation name = tideDbSearchPath >>= findTideDbs >>= foldM search Nothing
   where
     search Nothing tcd = do
@@ -77,21 +78,21 @@ searchDbsForStation name = tideDbSearchPath >>= findTideDbs >>= foldM search Not
         else pure Nothing
     search x _ = pure x
 
-openDefaultTideDb :: IO Bool
+openDefaultTideDb :: MonadIO m => m Bool
 openDefaultTideDb = tideDbSearchPath >>= findTideDbs >>= \case
     (tcd : _) -> openTideDb tcd
     _ -> return False
 
-findTideDbs :: [FilePath] -> IO [FilePath]
+findTideDbs :: MonadIO m => [FilePath] -> m [FilePath]
 findTideDbs = fmap concat . traverse findTideDbs'
 
-findTideDbs' :: FilePath -> IO [FilePath]
-findTideDbs' path = do
+findTideDbs' :: MonadIO m => FilePath -> m [FilePath]
+findTideDbs' path = liftIO $ do
     isDir <- doesDirectoryExist path
     isFile <- doesFileExist path
     if | isDir -> map (path </>) . filter (".tcd" `isSuffixOf`) <$> getDirectoryContents path
        | isFile -> pure [path]
        | otherwise -> pure []
 
-tideDbSearchPath :: IO [FilePath]
-tideDbSearchPath = maybe ["/usr/share/xtide"] splitSearchPath <$> lookupEnv "HFILE_PATH"
+tideDbSearchPath :: MonadIO m => m [FilePath]
+tideDbSearchPath = liftIO $ maybe ["/usr/share/xtide"] splitSearchPath <$> lookupEnv "HFILE_PATH"

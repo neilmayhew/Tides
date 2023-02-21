@@ -2,6 +2,7 @@
 
 module TCD where
 
+import Control.Monad.IO.Class (MonadIO(..))
 import Data.Int
 import Data.Word
 import Foreign.C.String
@@ -118,8 +119,8 @@ data TideRecord = TideRecord
     , trMinDirection      :: Int
     , trMaxDirection      :: Int
     , trLevelUnits        :: Int
-                          
-    -- Type 1             
+
+    -- Type 1
     , trDatumOffset       :: Double
     , trDatum             :: Int
     , trZoneOffset        :: Int
@@ -129,8 +130,8 @@ data TideRecord = TideRecord
     , trConfidence        :: Int
     , trAmplitudes        :: [Double]
     , trEpochs            :: [Double]
-                          
-    -- Type 2             
+
+    -- Type 2
     , trMinTimeAdd        :: Int
     , trMinLevelAdd       :: Double
     , trMinLevelMultiply  :: Double
@@ -201,8 +202,8 @@ nullSlackOffset = #{const NULLSLACKOFFSET}
 amplitudeEpsilon :: Double
 amplitudeEpsilon = 0.00005 -- #{const AMPLITUDE_EPSILON}
 
-openTideDb :: String -> IO Bool
-openTideDb filepath = do
+openTideDb :: MonadIO m => String -> m Bool
+openTideDb filepath = liftIO $ do
     result <- withCString filepath $ \cstr ->
         toBool <$> c_open_tide_db cstr
     -- Work around the lack of the following:
@@ -213,14 +214,14 @@ openTideDb filepath = do
 foreign import ccall safe "tcd.h open_tide_db"
   c_open_tide_db :: Ptr CChar -> IO CUChar
 
-closeTideDb :: IO ()
-closeTideDb = c_close_tide_db
+closeTideDb :: MonadIO m => m ()
+closeTideDb = liftIO $ c_close_tide_db
 
 foreign import ccall safe "TCD.h close_tide_db"
   c_close_tide_db :: IO ()
 
-getTideDbHeader :: IO DatabaseHeader
-getTideDbHeader =
+getTideDbHeader :: MonadIO m => m DatabaseHeader
+getTideDbHeader = liftIO $
     alloca $ \prec -> do
         c_get_tide_db_header prec
         peek prec
@@ -232,8 +233,8 @@ foreign import ccall safe "TCDAux.h get_tide_db_header_"
    record_number is num [0,number_of_records-1] and writes it into
    rec.  Returns false if num is out of range. -}
 
-getPartialTideRecord :: Int -> IO (Bool, TideStationHeader)
-getPartialTideRecord num =
+getPartialTideRecord :: MonadIO m => Int -> m (Bool, TideStationHeader)
+getPartialTideRecord num = liftIO $
     alloca $ \prec -> do
         res <- (/= 0) <$> c_get_partial_tide_record (fromIntegral num) prec
         rec <- peek prec
@@ -242,8 +243,8 @@ getPartialTideRecord num =
 foreign import ccall safe "tcd.h get_partial_tide_record"
   c_get_partial_tide_record :: Int32 -> Ptr TideStationHeader -> IO Word8
 
-readTideRecord :: Int -> IO (Int, TideRecord)
-readTideRecord num =
+readTideRecord :: MonadIO m => Int -> m (Int, TideRecord)
+readTideRecord num = liftIO $
     alloca $ \prec -> do
         res <- fromIntegral <$> c_read_tide_record (fromIntegral num) prec
         rec <- peek prec
@@ -256,8 +257,8 @@ foreign import ccall safe "tcd.h read_tide_record"
    to the specified lat and lon in the Cylindrical Equidistant
    projection.  Returns the record number or -1 for failure. -}
 
-getNearestPartialTideRecord :: Double -> Double -> IO (Int, TideStationHeader)
-getNearestPartialTideRecord lat lon =
+getNearestPartialTideRecord :: MonadIO m => Double -> Double -> m (Int, TideStationHeader)
+getNearestPartialTideRecord lat lon = liftIO $
     alloca $ \prec -> do
         res <- fromIntegral <$> c_get_nearest_partial_tide_record
                     (realToFrac lat) (realToFrac lon) prec
@@ -267,8 +268,8 @@ getNearestPartialTideRecord lat lon =
 foreign import ccall safe "tcd.h get_nearest_partial_tide_record"
   c_get_nearest_partial_tide_record :: CDouble -> CDouble -> Ptr TideStationHeader -> IO Int32
 
-dumpTideRecordNum :: Int -> IO ()
-dumpTideRecordNum num =
+dumpTideRecordNum :: MonadIO m => Int -> m ()
+dumpTideRecordNum num = liftIO $
     alloca $ \prec -> do
         n <- c_read_tide_record (fromIntegral num) prec
         if n == (fromIntegral num)
@@ -284,44 +285,44 @@ foreign import ccall safe "tcd.h dump_tide_record"
    value "Unknown" is returned when no translation exists.  The return
    value is a pointer into static memory. -}
 
-getCountry :: Int -> IO String
-getCountry num = peekCString =<< c_get_country (fromIntegral num)
+getCountry :: MonadIO m => Int -> m String
+getCountry num = liftIO $ peekCString =<< c_get_country (fromIntegral num)
 
 foreign import ccall safe "tcd.h get_country"
   c_get_country :: Int32 -> IO CString
 
-getTZFile :: Int -> IO String
-getTZFile num = peekCString =<< c_get_tzfile (fromIntegral num)
+getTZFile :: MonadIO m => Int -> m String
+getTZFile num = liftIO $ peekCString =<< c_get_tzfile (fromIntegral num)
 
 foreign import ccall safe "tcd.h get_tzfile"
   c_get_tzfile :: Int32 -> IO CString
 
-getLevelUnits :: Int -> IO String
-getLevelUnits num = peekCString =<< c_get_level_units (fromIntegral num)
+getLevelUnits :: MonadIO m => Int -> m String
+getLevelUnits num = liftIO $ peekCString =<< c_get_level_units (fromIntegral num)
 
 foreign import ccall safe "tcd.h get_level_units"
   c_get_level_units :: Int32 -> IO CString
 
-getDirUnits :: Int -> IO String
-getDirUnits num = peekCString =<< c_get_dir_units (fromIntegral num)
+getDirUnits :: MonadIO m => Int -> m String
+getDirUnits num = liftIO $ peekCString =<< c_get_dir_units (fromIntegral num)
 
 foreign import ccall safe "tcd.h get_dir_units"
   c_get_dir_units :: Int32 -> IO CString
 
-getRestriction :: Int -> IO String
-getRestriction num = peekCString =<< c_get_restriction (fromIntegral num)
+getRestriction :: MonadIO m => Int -> m String
+getRestriction num = liftIO $ peekCString =<< c_get_restriction (fromIntegral num)
 
 foreign import ccall safe "tcd.h get_restriction"
   c_get_restriction :: Int32 -> IO CString
 
-getDatum :: Int -> IO String
-getDatum num = peekCString =<< c_get_datum (fromIntegral num)
+getDatum :: MonadIO m => Int -> m String
+getDatum num = liftIO $ peekCString =<< c_get_datum (fromIntegral num)
 
 foreign import ccall safe "tcd.h get_datum"
   c_get_datum :: Int32 -> IO CString
 
-getLegalese :: Int -> IO String
-getLegalese num = peekCString =<< c_get_legalese (fromIntegral num)
+getLegalese :: MonadIO m => Int -> m String
+getLegalese num = liftIO $ peekCString =<< c_get_legalese (fromIntegral num)
 
 foreign import ccall safe "tcd.h get_legalese"
   c_get_legalese :: Int32 -> IO CString
@@ -331,8 +332,8 @@ foreign import ccall safe "tcd.h get_legalese"
    station name.  This search is case insensitive.  When no more
    records are found it returns -1. -}
 
-searchStation :: String -> IO Int
-searchStation str = fromIntegral <$> withCString str c_search_station
+searchStation :: MonadIO m => String -> m Int
+searchStation str = liftIO $ fromIntegral <$> withCString str c_search_station
 
 foreign import ccall safe "tcd.h search_station"
   c_search_station :: CString -> IO Int32
@@ -341,8 +342,8 @@ foreign import ccall safe "tcd.h search_station"
    [0,constituents-1].  The return value is a pointer into static
    memory. -}
 
-getConstituent :: Int -> IO String
-getConstituent num = peekCString =<< c_get_constituent (fromIntegral num)
+getConstituent :: MonadIO m => Int -> m String
+getConstituent num = liftIO $ peekCString =<< c_get_constituent (fromIntegral num)
 
 foreign import ccall safe "tcd.h get_constituent"
   c_get_constituent :: Int32 -> IO CString
@@ -351,8 +352,8 @@ foreign import ccall safe "tcd.h get_constituent"
    [0,number_of_records-1].  The return value is a pointer into static
    memory. -}
 
-getStation :: Int -> IO String
-getStation num = peekCString =<< c_get_station (fromIntegral num)
+getStation :: MonadIO m => Int -> m String
+getStation num = liftIO $ peekCString =<< c_get_station (fromIntegral num)
 
 foreign import ccall safe "tcd.h get_station"
   c_get_station :: Int32 -> IO CString
@@ -360,8 +361,8 @@ foreign import ccall safe "tcd.h get_station"
 {- Returns the speed of the constituent indicated by num
    [0,constituents-1]. -}
 
-getSpeed :: Int -> IO Double
-getSpeed num = realToFrac <$> c_get_speed (fromIntegral num)
+getSpeed :: MonadIO m => Int -> m Double
+getSpeed num = liftIO $ realToFrac <$> c_get_speed (fromIntegral num)
 
 foreign import ccall safe "tcd.h get_speed"
   c_get_speed :: Int32 -> IO CDouble
@@ -370,14 +371,14 @@ foreign import ccall safe "tcd.h get_speed"
    indicated by num [0,constituents-1], for the year
    start_year+year. -}
 
-getEquilibrium :: Int -> Int -> IO Double
-getEquilibrium num year = realToFrac <$> c_get_equilibrium (fromIntegral num) (fromIntegral year)
+getEquilibrium :: MonadIO m => Int -> Int -> m Double
+getEquilibrium num year = liftIO $ realToFrac <$> c_get_equilibrium (fromIntegral num) (fromIntegral year)
 
 foreign import ccall safe "tcd.h get_equilibrium"
   c_get_equilibrium :: Int32 -> Int32 -> IO CFloat
 
-getNodeFactor :: Int -> Int -> IO Double
-getNodeFactor num year = realToFrac <$> c_get_node_factor (fromIntegral num) (fromIntegral year)
+getNodeFactor :: MonadIO m => Int -> Int -> m Double
+getNodeFactor num year = liftIO $ realToFrac <$> c_get_node_factor (fromIntegral num) (fromIntegral year)
 
 foreign import ccall safe "tcd.h get_node_factor"
   c_get_node_factor :: Int32 -> Int32 -> IO CFloat
@@ -388,8 +389,8 @@ foreign import ccall safe "tcd.h get_node_factor"
    number_of_years floats, corresponding to the years start_year
    through start_year+number_of_years-1. -}
 
-getEquilibriums :: Int -> IO [Double]
-getEquilibriums num = do
+getEquilibriums :: MonadIO m => Int -> m [Double]
+getEquilibriums num = liftIO $ do
     n <- hdrNumberOfYears <$> getTideDbHeader
     a <- peekArray (fromIntegral n) =<< c_get_equilibriums (fromIntegral num)
     return $ map realToFrac a
@@ -397,8 +398,8 @@ getEquilibriums num = do
 foreign import ccall safe "tcd.h get_equilibriums"
   c_get_equilibriums :: Int32 -> IO (Ptr CFloat)
 
-getNodeFactors  :: Int -> IO [Double]
-getNodeFactors num = do
+getNodeFactors  :: MonadIO m => Int -> m [Double]
+getNodeFactors num = liftIO $ do
     n <- hdrNumberOfYears <$> getTideDbHeader
     a <- peekArray (fromIntegral n) =<< c_get_node_factors (fromIntegral num)
     return $ map realToFrac a
