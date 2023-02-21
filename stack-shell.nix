@@ -1,6 +1,6 @@
-{ ghc }:
+{ pkgs ? import <nixpkgs> {}, ghc ? pkgs.haskell.compiler.ghc925 }:
 
-with (import <nixpkgs> {});
+with pkgs;
 
 let
   tcd       = callPackage ./libtcd.nix    {};
