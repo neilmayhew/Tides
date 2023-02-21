@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE LambdaCase #-}
 
 #if IN_TEST_HARNESS
 module TideAmplitudes where
@@ -8,13 +9,14 @@ import TCD
 import TCDExtra
 
 import Control.Monad
-import System.Environment (getArgs)
+import System.Environment (getArgs, getProgName)
 import System.Exit (die)
 import Text.Printf
 
 main :: IO ()
-main = do
-    (station:date:_) <- getArgs
+main = getArgs >>= \case
+
+  [station, date] -> do
 
     num <- maybe (die "Cannot find station") pure =<< searchDbsForStation station
 
@@ -45,5 +47,8 @@ main = do
 
     putStrLn $ printf "Maximum amplitude: %.6f - %.6f = %.6f = %.6fft"
         (offset+maxamp) (offset-maxamp) (2*maxamp) (m2ft $ 2*maxamp)
+
+  _ -> die . printf "Usage: %s STATION DATE" =<< getProgName
+
   where
     innerProduct xs ys = sum $ zipWith (*) xs ys

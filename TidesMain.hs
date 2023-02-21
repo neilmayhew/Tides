@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE LambdaCase #-}
 {-# OPTIONS_GHC -fno-warn-unused-imports #-}
 
 #if IN_TEST_HARNESS
@@ -12,6 +13,7 @@ import Control.Monad
 import Data.Time
 import Data.Time.Locale.Compat (TimeLocale, defaultTimeLocale)
 import System.Environment
+import System.Exit
 import Text.Printf
 
 #if !MIN_VERSION_time(1,5,0)
@@ -20,8 +22,9 @@ parseTimeOrError _ = readTime
 #endif
 
 main :: IO ()
-main = do
-    [location, begin, end, step] <- getArgs
+main = getArgs >>= \case
+
+  [location, begin, end, step] -> do
 
     let parseTime' :: ParseTime t => String -> String -> t
         parseTime' = parseTimeOrError True defaultTimeLocale
@@ -40,6 +43,9 @@ main = do
     forM_ events $ \(Extremum (t, h) c) ->
         putStrLn $ printf "%s %6.2f %s  %s Tide"
             (showTime t) h units (showType c)
+
+  _ -> die . printf "Usage: %s LOCATION BEGIN END STEP" =<< getProgName
+
   where
     showTime :: ZonedTime -> String
     showTime t = formatTime defaultTimeLocale "%F %l:%M %p %Z" t'

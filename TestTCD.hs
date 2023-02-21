@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE LambdaCase #-}
 
 #if IN_TEST_HARNESS
 module TestTCD where
@@ -15,8 +16,8 @@ import System.Exit
 import Text.Printf
 
 main :: IO ()
-main = do
-    (station:_) <- getArgs
+main = getArgs >>= \case
+  [station] -> do
 
     putStr "nullSlackOffset: "
     print nullSlackOffset
@@ -60,3 +61,5 @@ main = do
     print =<< (map realToFrac <$> getEquilibriums cn :: IO [Float])
     putStrLn "getNodeFactors:"
     print =<< (map realToFrac <$> getNodeFactors  cn :: IO [Float])
+
+  _ -> die . printf "Usage: %s STATION" =<< getProgName

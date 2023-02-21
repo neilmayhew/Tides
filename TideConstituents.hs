@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE LambdaCase #-}
 
 #if IN_TEST_HARNESS
 module TideConstituents where
@@ -9,12 +10,17 @@ import TCDExtra
 
 import Control.Monad (forM_, unless)
 import Data.List (sort, zip5)
-import System.Environment (getArgs)
+import System.Environment (getArgs, getProgName)
+import System.Exit
 import Text.Printf
 
 main :: IO ()
-main = do
-    (date:_) <- getArgs
+main = getArgs >>= \case
+  [date] -> showConstituents =<< getConstituents date
+  _ -> die . printf "Usage: %s DATE" =<< getProgName
+
+getConstituents :: String -> IO [(Double, Int, String, Double, Double)]
+getConstituents date = do
 
     opened <- openDefaultTideDb
 
@@ -32,8 +38,10 @@ main = do
     nodeFactors  <- mapM (`getNodeFactor`  yearNum) indices
     equilibriums <- mapM (`getEquilibrium` yearNum) indices
 
-    let constituents = zip5 speeds indices names nodeFactors equilibriums
+    pure $ zip5 speeds indices names nodeFactors equilibriums
 
+showConstituents :: [(Double, Int, String, Double, Double)] -> IO ()
+showConstituents constituents = do
     putStrLn "  i Name             Speed Factor Equilib       Period"
     putStrLn "--- ---------- ----------- ------ ------- ------------"
     forM_ (sort constituents) $
