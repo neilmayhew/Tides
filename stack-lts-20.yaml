@@ -1,5 +1,8 @@
-resolver: lts-21.2
+resolver: lts-20.11
 
 nix:
   shell-file: stack-shell.nix
   packages: []
+
+extra-deps:
+- tz-0.1.3.6
