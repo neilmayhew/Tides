@@ -36,7 +36,7 @@ jobs:
           ${{ runner.os }}-
 
     - name: Haskell setup
-      uses: haskell/actions/setup@main
+      uses: haskell-actions/setup@main
       with:
         ghc-version: ${{ matrix.ghc }}
 
