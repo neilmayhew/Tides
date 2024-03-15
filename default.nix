@@ -1,7 +1,7 @@
 # vim: et:sw=2:sts=2
 
 { stdenv, lib, callPackage, mkDerivation, harmonicsType ? "free"
-, base, base-compat, hspec, hspec-golden, mtl, process, random, time, time-locale-compat, tz, QuickCheck
+, base, base-compat, containers, directory, filepath, hspec, hspec-golden, mtl, process, QuickCheck, random, time, time-locale-compat, tz
 , pkgs
 }:
 
@@ -9,19 +9,23 @@ let
   tcd       = callPackage ./libtcd.nix    {};
   harmonics = callPackage ./harmonics.nix { type = harmonicsType; };
   xtide     = callPackage ./xtide.nix     {};
-
-  inherit (lib) concatStringsSep;
 in
   mkDerivation rec {
     pname = "Tides";
     version = "0.1.0.0";
-    src = ./.;
-    isLibrary = false;
+    src = lib.cleanSource ./.;
+    isLibrary = true;
     isExecutable = true;
-    libraryHaskellDepends = [ base ];
-    executableHaskellDepends = [ base base-compat mtl process random time time-locale-compat tz QuickCheck ];
+    libraryHaskellDepends = [ base directory filepath ];
+    librarySystemDepends = [ tcd ];
+    executableHaskellDepends = [
+      base containers directory filepath mtl process QuickCheck random
+      time time-locale-compat tz ];
     executableSystemDepends = [ tcd ];
-    testHaskellDepends = [ base process hspec hspec-golden ];
+    testHaskellDepends = [
+      base base-compat directory filepath hspec hspec-golden mtl process
+      random time time-locale-compat tz
+    ];
     enableSharedExecutables = false;
     enableSharedLibraries = false;
     shellHook = ''
