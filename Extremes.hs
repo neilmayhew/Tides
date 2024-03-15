@@ -26,8 +26,8 @@ main = do
     let parseTime' :: ParseTime t => String -> String -> t
         parseTime' = parseTimeOrError True defaultTimeLocale
         toTime     = parseTime' "%F %H:%M"
-        begin      = toTime "1700-01-01 00:00"
-        end        = toTime "2101-01-01 00:00"
+        begin      = toTime "1800-01-01 00:00"
+        end        = toTime "2051-01-01 00:00"
         step       = realToFrac (10 * 24 * 60 * 60 :: Int)
 
     (_, times, _, _) <- tides location begin end step
