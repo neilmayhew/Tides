@@ -12,4 +12,4 @@ let
 
 in
 
-  if pkgs.lib.inNixShell then drv.env else drv
+  if pkgs.lib.inNixShell then drv.env else pkgs.haskell.lib.justStaticExecutables drv
