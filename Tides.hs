@@ -10,9 +10,10 @@ import Control.Arrow (first)
 import Control.Monad (unless, (<=<))
 import Control.Monad.IO.Class (MonadIO(..))
 import Data.Function
-import Data.List (groupBy)
 import Data.Time
 import Data.Time.Zones
+
+import qualified Data.List.NonEmpty as NE
 
 type Prediction = (ZonedTime, Double)
 type Event      = Extremum Prediction
@@ -36,17 +37,17 @@ tides station begin end step = do
 
     --name    <- return . tshName . trHeader $ r
     --country <- getCountry . trCountry $ r
-    tz      <- liftIO . loadSystemTZ . tail <=< getTZFile . tshTZFile . trHeader $ r
+    tz      <- liftIO . loadSystemTZ . dropWhile (== ':') <=< getTZFile . tshTZFile . trHeader $ r
     units   <- getLevelUnits . trLevelUnits $ r
 
     let beginUTC = localTimeToUTCTZ' tz begin
         endUTC   = localTimeToUTCTZ' tz end
         nextUTC  = step `addUTCTime` beginUTC
-        years    = groupBy ((==) `on` yot) [beginUTC, nextUTC .. endUTC]
+        years    = NE.groupBy ((==) `on` yot) [beginUTC, nextUTC .. endUTC]
         yot      = yearOfTime :: UTCTime -> Int
 
     let tides' times = do
-            let startYear = yearOfTime $ head times
+            let startYear = yearOfTime $ NE.head times
                 yearNum = fromIntegral startYear - baseYear
 
             nodeFactors  <- mapM (`getNodeFactor`  yearNum) indices
@@ -62,11 +63,11 @@ tides station begin end step = do
                 tide    = evaluate series
                 tide'   = evaluate series'
 
-                heights = map (tide . toHours . timeOfTheYear) times
-                ztimes  = map (toZonedTime tz) times
+                heights = NE.map (tide . toHours . timeOfTheYear) times
+                ztimes  = NE.map (toZonedTime tz) times
 
-                beginHour = toHours . timeOfTheYear $ head times
-                endHour   = toHours . timeOfTheYear $ last times
+                beginHour = toHours . timeOfTheYear $ NE.head times
+                endHour   = toHours . timeOfTheYear $ NE.last times
                 hours = takeWhile (< endHour) [beginHour ..] ++ [endHour]
                 slots = zip hours (drop 1 hours)
                 reversals = filter (\(t0, t1) -> tide' t0 * tide' t1 <= 0) slots
@@ -74,7 +75,7 @@ tides station begin end step = do
                 findEvents = map toTideEvent . extrema series (1/240) -- 15s
                 toTideEvent = fmap . first $ toZonedTime tz . yhTimeToUtcTime . YHTime startYear
 
-            return (zip ztimes heights, events)
+            return (NE.zip ztimes heights, events)
 
           where
             d2r d = d * (pi / 180)
@@ -84,7 +85,7 @@ tides station begin end step = do
 
     predictions <- mapM tides' years
 
-    return (concatMap fst predictions, concatMap snd predictions, units, tz)
+    return (concatMap (NE.toList . fst) predictions, concatMap snd predictions, units, tz)
 
 -- Prefer the earlier time to the later time when LT is ambiguous
 -- This matches the behaviour of xtide

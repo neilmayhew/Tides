@@ -34,7 +34,7 @@ main = do
 
     let (highs, lows) = partition ((== Maximum) . exType) times
         cmp = comparing (snd . exPoint)
-        ranges = zipWith sub times $ tail times
+        ranges = zipWith sub times $ drop 1 times
         sub (Extremum (t, h) c) (Extremum (_, h') _) = Extremum (t, abs (h - h')) c
 
     forM_ (take 10 $ sortBy (flip cmp) highs) $

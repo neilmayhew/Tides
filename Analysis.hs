@@ -1,5 +1,9 @@
 module Analysis where
 
+import Prelude hiding (head, iterate)
+
+import Data.List.Infinite (Infinite ((:<)), head, iterate)
+
 data Criticality = Maximum | Minimum | Inflection
     deriving (Eq, Show, Read)
 
@@ -27,10 +31,9 @@ solve :: (Fractional t, Ord t) =>
 solve f f' e (x0, _) = head . convergedBy e . iterate step $ x0
   where step x = x - f x / f' x
 
-dropWhile2 :: (t -> t -> Bool) -> [t] -> [t]
-dropWhile2 p xs@(x : xs'@(x' : _)) = if not (p x x') then xs else dropWhile2 p xs'
-dropWhile2 _ xs = xs
+dropWhile2 :: (t -> t -> Bool) -> Infinite t -> Infinite t
+dropWhile2 p xs@(x :< xs'@(x' :< _)) = if not (p x x') then xs else dropWhile2 p xs'
 
-convergedBy :: (Num t, Ord t) => t -> [t] -> [t]
+convergedBy :: (Num t, Ord t) => t -> Infinite t -> Infinite t
 convergedBy e = dropWhile2 unconverging
   where unconverging x x' = abs (x - x') >= e

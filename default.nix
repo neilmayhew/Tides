@@ -1,7 +1,8 @@
 # vim: et:sw=2:sts=2
 
 { stdenv, lib, callPackage, mkDerivation, harmonicsType ? "free"
-, base, base-compat, containers, directory, filepath, hspec, hspec-golden, mtl, process, QuickCheck, random, time, time-locale-compat, tz
+, base, base-compat, containers, directory, filepath, hspec, hspec-golden
+, infinite-list, mtl, process, QuickCheck, random, time, time-locale-compat, tz
 , pkgs
 }:
 
@@ -19,8 +20,8 @@ in
     libraryHaskellDepends = [ base directory filepath ];
     librarySystemDepends = [ tcd ];
     executableHaskellDepends = [
-      base containers directory filepath mtl process QuickCheck random
-      time time-locale-compat tz ];
+      base containers directory filepath infinite-list mtl process QuickCheck
+      random time time-locale-compat tz ];
     executableSystemDepends = [ tcd ];
     testHaskellDepends = [
       base base-compat directory filepath hspec hspec-golden mtl process
