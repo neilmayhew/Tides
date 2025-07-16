@@ -28,6 +28,7 @@ library
     ghc-options:
        -Wall
        -Wcompat
+       -Wunused-packages
        -Werror
 
 executable Tides
@@ -56,6 +57,7 @@ executable Tides
     ghc-options:
        -Wall
        -Wcompat
+       -Wunused-packages
        -Werror
 
 executable Extremes
@@ -77,14 +79,13 @@ executable Extremes
     ghc-options:
        -Wall
        -Wcompat
+       -Wunused-packages
        -Werror
 
 executable SummarizeTCD
     main-is: SummarizeTCD.hs
     build-depends:
         base >=4.6.0.1 && <5,
-        directory >=1.2.0.1 && <1.4,
-        filepath >=1.3.0.1 && <1.6,
         containers >=0.5.0.0 && <0.8,
         Tides,
     extra-libraries:
@@ -93,6 +94,7 @@ executable SummarizeTCD
     ghc-options:
        -Wall
        -Wcompat
+       -Wunused-packages
        -Werror
 
 executable SearchTCDs
@@ -102,10 +104,6 @@ executable SearchTCDs
         base >=4.6.0.1 && <5,
         directory >=1.2.0.1 && <1.4,
         filepath >=1.3.0.1 && <1.6,
-        time >=1.5 && <1.15,
-        time-locale-compat >=0.1.1.3 && <0.2,
-        tz >=0.0.0.5 && <0.2,
-        random >=1.1 && <1.3,
         Tides,
     extra-libraries:
         tcd
@@ -113,6 +111,7 @@ executable SearchTCDs
     ghc-options:
        -Wall
        -Wcompat
+       -Wunused-packages
        -Werror
 
 executable TestTides
@@ -124,7 +123,6 @@ executable TestTides
         filepath >=1.3.0.1 && <1.6,
         infinite-list >=0.1 && <0.2,
         time >=1.5 && <1.15,
-        time-locale-compat >=0.1.1.3 && <0.2,
         tz >=0.0.0.5 && <0.2,
         process >=1.2.3 && <1.7,
         random >=1.1 && <1.3,
@@ -136,6 +134,7 @@ executable TestTides
     ghc-options:
        -Wall
        -Wcompat
+       -Wunused-packages
        -Werror
 
 executable TestTCD
@@ -155,6 +154,7 @@ executable TestTCD
     ghc-options:
        -Wall
        -Wcompat
+       -Wunused-packages
        -Werror
 
 executable TideConstituents
@@ -174,6 +174,7 @@ executable TideConstituents
     ghc-options:
        -Wall
        -Wcompat
+       -Wunused-packages
        -Werror
 
 executable TideAmplitudes
@@ -193,6 +194,7 @@ executable TideAmplitudes
     ghc-options:
        -Wall
        -Wcompat
+       -Wunused-packages
        -Werror
 
 test-suite TestRegressions
@@ -211,14 +213,12 @@ test-suite TestRegressions
         Time
     build-depends:
         base >=4.6.0.1 && <5,
-        base-compat,
         directory >=1.2.0.1 && <1.4,
         filepath >=1.3.0.1 && <1.6,
         hspec >=2.7.6,
         hspec-golden >=0.1.0.3,
         infinite-list >=0.1 && <0.2,
         mtl >=2.2.2 && <2.4,
-        process >=1.2.3 && <1.7,
         random >=1.1 && <1.3,
         time >=1.5 && <1.15,
         time-locale-compat >=0.1.1.3 && <0.2,
@@ -228,6 +228,7 @@ test-suite TestRegressions
     ghc-options:
        -Wall
        -Wcompat
+       -Wunused-packages
        -Werror
     cpp-options:
        -DIN_TEST_HARNESS
