@@ -43,7 +43,7 @@ jobs:
     - name: Install native dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y --no-install-recommends libtcd-dev xtide xtide-data xtide-data-nonfree
+        sudo apt-get install -y --no-install-recommends libtcd-dev xtide-data xtide-data-nonfree
 
     - name: Configure
       run: |
@@ -60,4 +60,20 @@ jobs:
       run: |
         export HFILE_PATH=$(dpkg -L xtide-data-nonfree | grep '\.tcd$' | head -n1)
         cabal test all
+
+    - name: Build and install xtide
+      run: |
+        VERSION=2.15.6
+        wget -nv https://flaterco.com/files/xtide/xtide-${VERSION}.tar.xz
+        tar -xf xtide-${VERSION}.tar.xz
+        cd xtide-${VERSION}
+        sudo apt-get install -y --no-install-recommends libpng-dev libz-dev
+        ./configure --without-x
+        make
+        sudo make install
+        sudo ldconfig /usr/local/lib
+
+    - name: Test against xtide
+      run: |
+        export HFILE_PATH=$(dpkg -L xtide-data-nonfree | grep '\.tcd$' | head -n1)
         cabal exec TestTides Hinkley
