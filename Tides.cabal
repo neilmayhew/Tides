@@ -4,231 +4,269 @@ version: 0.1.0.0
 build-type: Simple
 license: MIT
 license-file: LICENSE
-copyright: 2014-2025 Neil Mayhew <neil_mayhew@users.sourceforge.net>
+copyright: 2014-2025 Neil Mayhew
+author: Neil Mayhew
 maintainer: neil_mayhew@users.sourceforge.net
 synopsis: A program for exploring tidal prediction data
-description:
-    Uses the Tide Component Database library (libtcd)
-author: Neil Mayhew
+description: Uses the Tide Component Database library (libtcd)
 
 library
-    exposed-modules:
-        TCD
-        TCDExtra
-    build-depends:
-        base >=4.6.0.1 && <5,
-        directory >=1.2.0.1 && <1.4,
-        filepath >=1.3.0.1 && <1.6
-    c-sources:
-        TCDAux.c
-        TCDAux.h
-    extra-libraries:
-        tcd
-    default-language: Haskell2010
-    ghc-options:
-       -Wall
-       -Wcompat
-       -Wunused-packages
-       -Werror
+  exposed-modules:
+    TCD
+    TCDExtra
+
+  build-depends:
+    base >=4.6.0.1 && <5,
+    directory >=1.2.0.1 && <1.4,
+    filepath >=1.3.0.1 && <1.6,
+
+  c-sources:
+    TCDAux.c
+    TCDAux.h
+
+  extra-libraries:
+    tcd
+
+  default-language: Haskell2010
+  ghc-options:
+    -Wall
+    -Wcompat
+    -Wunused-packages
+    -Werror
 
 executable Tides
-    main-is: TidesMain.hs
-    other-modules:
-        System.IO.Fake
-        Analysis
-        Harmonics
-        TCDExtra
-        Tides
-        Time
-    build-depends:
-        base >=4.6.0.1 && <5,
-        directory >=1.2.0.1 && <1.4,
-        filepath >=1.3.0.1 && <1.6,
-        infinite-list >=0.1 && <0.2,
-        mtl >=2.2.2 && <2.4,
-        time >=1.5 && <1.15,
-        time-locale-compat >=0.1.1.3 && <0.2,
-        tz >=0.0.0.5 && <0.2,
-        random >=1.1 && <1.3,
-        Tides,
-    extra-libraries:
-        tcd
-    default-language: Haskell2010
-    ghc-options:
-       -Wall
-       -Wcompat
-       -Wunused-packages
-       -Werror
+  main-is: TidesMain.hs
+  other-modules:
+    Analysis
+    Harmonics
+    System.IO.Fake
+    TCDExtra
+    Tides
+    Time
+
+  build-depends:
+    Tides,
+    base >=4.6.0.1 && <5,
+    directory >=1.2.0.1 && <1.4,
+    filepath >=1.3.0.1 && <1.6,
+    infinite-list >=0.1 && <0.2,
+    mtl >=2.2.2 && <2.4,
+    random >=1.1 && <1.3,
+    time >=1.5 && <1.15,
+    time-locale-compat >=0.1.1.3 && <0.2,
+    tz >=0.0.0.5 && <0.2,
+
+  extra-libraries:
+    tcd
+
+  default-language: Haskell2010
+  ghc-options:
+    -Wall
+    -Wcompat
+    -Wunused-packages
+    -Werror
 
 executable Extremes
-    main-is: Extremes.hs
-    other-modules: Analysis Harmonics TCDExtra Tides Time
-    build-depends:
-        base >=4.6.0.1 && <5,
-        directory >=1.2.0.1 && <1.4,
-        filepath >=1.3.0.1 && <1.6,
-        infinite-list >=0.1 && <0.2,
-        time >=1.5 && <1.15,
-        time-locale-compat >=0.1.1.3 && <0.2,
-        tz >=0.0.0.5 && <0.2,
-        random >=1.1 && <1.3,
-        Tides,
-    extra-libraries:
-        tcd
-    default-language: Haskell2010
-    ghc-options:
-       -Wall
-       -Wcompat
-       -Wunused-packages
-       -Werror
+  main-is: Extremes.hs
+  other-modules:
+    Analysis
+    Harmonics
+    TCDExtra
+    Tides
+    Time
+
+  build-depends:
+    Tides,
+    base >=4.6.0.1 && <5,
+    directory >=1.2.0.1 && <1.4,
+    filepath >=1.3.0.1 && <1.6,
+    infinite-list >=0.1 && <0.2,
+    random >=1.1 && <1.3,
+    time >=1.5 && <1.15,
+    time-locale-compat >=0.1.1.3 && <0.2,
+    tz >=0.0.0.5 && <0.2,
+
+  extra-libraries:
+    tcd
+
+  default-language: Haskell2010
+  ghc-options:
+    -Wall
+    -Wcompat
+    -Wunused-packages
+    -Werror
 
 executable SummarizeTCD
-    main-is: SummarizeTCD.hs
-    build-depends:
-        base >=4.6.0.1 && <5,
-        containers >=0.5.0.0 && <0.8,
-        Tides,
-    extra-libraries:
-        tcd
-    default-language: Haskell2010
-    ghc-options:
-       -Wall
-       -Wcompat
-       -Wunused-packages
-       -Werror
+  main-is: SummarizeTCD.hs
+  build-depends:
+    Tides,
+    base >=4.6.0.1 && <5,
+    containers >=0.5.0.0 && <0.8,
+
+  extra-libraries:
+    tcd
+
+  default-language: Haskell2010
+  ghc-options:
+    -Wall
+    -Wcompat
+    -Wunused-packages
+    -Werror
 
 executable SearchTCDs
-    main-is: SearchTCDs.hs
-    other-modules: TCDExtra
-    build-depends:
-        base >=4.6.0.1 && <5,
-        directory >=1.2.0.1 && <1.4,
-        filepath >=1.3.0.1 && <1.6,
-        Tides,
-    extra-libraries:
-        tcd
-    default-language: Haskell2010
-    ghc-options:
-       -Wall
-       -Wcompat
-       -Wunused-packages
-       -Werror
+  main-is: SearchTCDs.hs
+  other-modules: TCDExtra
+  build-depends:
+    Tides,
+    base >=4.6.0.1 && <5,
+    directory >=1.2.0.1 && <1.4,
+    filepath >=1.3.0.1 && <1.6,
+
+  extra-libraries:
+    tcd
+
+  default-language: Haskell2010
+  ghc-options:
+    -Wall
+    -Wcompat
+    -Wunused-packages
+    -Werror
 
 executable TestTides
-    main-is: TestTides.hs
-    other-modules: Analysis Harmonics TCDExtra Tides Time
-    build-depends:
-        base >=4.6.0.1 && <5,
-        directory >=1.2.0.1 && <1.4,
-        filepath >=1.3.0.1 && <1.6,
-        infinite-list >=0.1 && <0.2,
-        time >=1.5 && <1.15,
-        tz >=0.0.0.5 && <0.2,
-        process >=1.2.3 && <1.7,
-        random >=1.1 && <1.3,
-        QuickCheck >=2.8 && <2.15,
-        Tides,
-    extra-libraries:
-        tcd
-    default-language: Haskell2010
-    ghc-options:
-       -Wall
-       -Wcompat
-       -Wunused-packages
-       -Werror
+  main-is: TestTides.hs
+  other-modules:
+    Analysis
+    Harmonics
+    TCDExtra
+    Tides
+    Time
+
+  build-depends:
+    QuickCheck >=2.8 && <2.15,
+    Tides,
+    base >=4.6.0.1 && <5,
+    directory >=1.2.0.1 && <1.4,
+    filepath >=1.3.0.1 && <1.6,
+    infinite-list >=0.1 && <0.2,
+    process >=1.2.3 && <1.7,
+    random >=1.1 && <1.3,
+    time >=1.5 && <1.15,
+    tz >=0.0.0.5 && <0.2,
+
+  extra-libraries:
+    tcd
+
+  default-language: Haskell2010
+  ghc-options:
+    -Wall
+    -Wcompat
+    -Wunused-packages
+    -Werror
 
 executable TestTCD
-    main-is: TestTCD.hs
-    other-modules:
-        System.IO.Fake
-        TCDExtra
-    build-depends:
-        base >=4.6.0.1 && <5,
-        directory >=1.2.0.1 && <1.4,
-        filepath >=1.3.0.1 && <1.6,
-        mtl >=2.2.2 && <2.4,
-        Tides,
-    extra-libraries:
-        tcd
-    default-language: Haskell2010
-    ghc-options:
-       -Wall
-       -Wcompat
-       -Wunused-packages
-       -Werror
+  main-is: TestTCD.hs
+  other-modules:
+    System.IO.Fake
+    TCDExtra
+
+  build-depends:
+    Tides,
+    base >=4.6.0.1 && <5,
+    directory >=1.2.0.1 && <1.4,
+    filepath >=1.3.0.1 && <1.6,
+    mtl >=2.2.2 && <2.4,
+
+  extra-libraries:
+    tcd
+
+  default-language: Haskell2010
+  ghc-options:
+    -Wall
+    -Wcompat
+    -Wunused-packages
+    -Werror
 
 executable TideConstituents
-    main-is: TideConstituents.hs
-    other-modules:
-        System.IO.Fake
-        TCDExtra
-    build-depends:
-        base >=4.6.0.1 && <5,
-        directory >=1.2.0.1 && <1.4,
-        filepath >=1.3.0.1 && <1.6,
-        mtl >=2.2.2 && <2.4,
-        Tides,
-    extra-libraries:
-        tcd
-    default-language: Haskell2010
-    ghc-options:
-       -Wall
-       -Wcompat
-       -Wunused-packages
-       -Werror
+  main-is: TideConstituents.hs
+  other-modules:
+    System.IO.Fake
+    TCDExtra
+
+  build-depends:
+    Tides,
+    base >=4.6.0.1 && <5,
+    directory >=1.2.0.1 && <1.4,
+    filepath >=1.3.0.1 && <1.6,
+    mtl >=2.2.2 && <2.4,
+
+  extra-libraries:
+    tcd
+
+  default-language: Haskell2010
+  ghc-options:
+    -Wall
+    -Wcompat
+    -Wunused-packages
+    -Werror
 
 executable TideAmplitudes
-    main-is: TideAmplitudes.hs
-    other-modules:
-        System.IO.Fake
-        TCDExtra
-    build-depends:
-        base >=4.6.0.1 && <5,
-        directory >=1.2.0.1 && <1.4,
-        filepath >=1.3.0.1 && <1.6,
-        mtl >=2.2.2 && <2.4,
-        Tides,
-    extra-libraries:
-        tcd
-    default-language: Haskell2010
-    ghc-options:
-       -Wall
-       -Wcompat
-       -Wunused-packages
-       -Werror
+  main-is: TideAmplitudes.hs
+  other-modules:
+    System.IO.Fake
+    TCDExtra
+
+  build-depends:
+    Tides,
+    base >=4.6.0.1 && <5,
+    directory >=1.2.0.1 && <1.4,
+    filepath >=1.3.0.1 && <1.6,
+    mtl >=2.2.2 && <2.4,
+
+  extra-libraries:
+    tcd
+
+  default-language: Haskell2010
+  ghc-options:
+    -Wall
+    -Wcompat
+    -Wunused-packages
+    -Werror
 
 test-suite TestRegressions
-    type: exitcode-stdio-1.0
-    main-is: TestRegressions.hs
-    other-modules:
-        System.IO.Fake
-        Analysis
-        Harmonics
-        TCDExtra
-        TestTCD
-        TideAmplitudes
-        TideConstituents
-        Tides
-        TidesMain
-        Time
-    build-depends:
-        base >=4.6.0.1 && <5,
-        directory >=1.2.0.1 && <1.4,
-        filepath >=1.3.0.1 && <1.6,
-        hspec >=2.7.6,
-        hspec-golden >=0.1.0.3,
-        infinite-list >=0.1 && <0.2,
-        mtl >=2.2.2 && <2.4,
-        random >=1.1 && <1.3,
-        time >=1.5 && <1.15,
-        time-locale-compat >=0.1.1.3 && <0.2,
-        tz >=0.0.0.5 && <0.2,
-        Tides,
-    default-language: Haskell2010
-    ghc-options:
-       -Wall
-       -Wcompat
-       -Wunused-packages
-       -Werror
-    cpp-options:
-       -DIN_TEST_HARNESS
+  type: exitcode-stdio-1.0
+  main-is: TestRegressions.hs
+  other-modules:
+    Analysis
+    Harmonics
+    System.IO.Fake
+    TCDExtra
+    TestTCD
+    TideAmplitudes
+    TideConstituents
+    Tides
+    TidesMain
+    Time
+
+  build-depends:
+    Tides,
+    base >=4.6.0.1 && <5,
+    directory >=1.2.0.1 && <1.4,
+    filepath >=1.3.0.1 && <1.6,
+    hspec >=2.7.6,
+    hspec-golden >=0.1.0.3,
+    infinite-list >=0.1 && <0.2,
+    mtl >=2.2.2 && <2.4,
+    random >=1.1 && <1.3,
+    time >=1.5 && <1.15,
+    time-locale-compat >=0.1.1.3 && <0.2,
+    tz >=0.0.0.5 && <0.2,
+
+  default-language: Haskell2010
+  ghc-options:
+    -Wall
+    -Wcompat
+    -Wunused-packages
+    -Werror
+
+  cpp-options:
+    -DIN_TEST_HARNESS
