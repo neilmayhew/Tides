@@ -4,7 +4,7 @@ version: 0.1.0.0
 build-type: Simple
 license: MIT
 license-file: LICENSE
-copyright: 2014 Neil Mayhew <neil_mayhew@users.sourceforge.net>
+copyright: 2014-2025 Neil Mayhew <neil_mayhew@users.sourceforge.net>
 maintainer: neil_mayhew@users.sourceforge.net
 synopsis: A program for exploring tidal prediction data
 description:
