@@ -1,6 +1,6 @@
+cabal-version: 3.8
 name: Tides
 version: 0.1.0.0
-cabal-version: >=1.9.2
 build-type: Simple
 license: MIT
 license-file: LICENSE
@@ -49,7 +49,7 @@ executable Tides
         time-locale-compat >=0.1.1.3 && <0.2,
         tz >=0.0.0.5 && <0.2,
         random >=1.1 && <1.3,
-        Tides -any
+        Tides,
     extra-libraries:
         tcd
     default-language: Haskell2010
@@ -70,7 +70,7 @@ executable Extremes
         time-locale-compat >=0.1.1.3 && <0.2,
         tz >=0.0.0.5 && <0.2,
         random >=1.1 && <1.3,
-        Tides -any
+        Tides,
     extra-libraries:
         tcd
     default-language: Haskell2010
@@ -86,7 +86,7 @@ executable SummarizeTCD
         directory >=1.2.0.1 && <1.4,
         filepath >=1.3.0.1 && <1.6,
         containers >=0.5.0.0 && <0.8,
-        Tides -any
+        Tides,
     extra-libraries:
         tcd
     default-language: Haskell2010
@@ -106,7 +106,7 @@ executable SearchTCDs
         time-locale-compat >=0.1.1.3 && <0.2,
         tz >=0.0.0.5 && <0.2,
         random >=1.1 && <1.3,
-        Tides -any
+        Tides,
     extra-libraries:
         tcd
     default-language: Haskell2010
@@ -129,7 +129,7 @@ executable TestTides
         process >=1.2.3 && <1.7,
         random >=1.1 && <1.3,
         QuickCheck >=2.8 && <2.15,
-        Tides -any
+        Tides,
     extra-libraries:
         tcd
     default-language: Haskell2010
@@ -148,7 +148,7 @@ executable TestTCD
         directory >=1.2.0.1 && <1.4,
         filepath >=1.3.0.1 && <1.6,
         mtl >=2.2.2 && <2.4,
-        Tides -any
+        Tides,
     extra-libraries:
         tcd
     default-language: Haskell2010
@@ -167,7 +167,7 @@ executable TideConstituents
         directory >=1.2.0.1 && <1.4,
         filepath >=1.3.0.1 && <1.6,
         mtl >=2.2.2 && <2.4,
-        Tides -any
+        Tides,
     extra-libraries:
         tcd
     default-language: Haskell2010
@@ -186,7 +186,7 @@ executable TideAmplitudes
         directory >=1.2.0.1 && <1.4,
         filepath >=1.3.0.1 && <1.6,
         mtl >=2.2.2 && <2.4,
-        Tides -any
+        Tides,
     extra-libraries:
         tcd
     default-language: Haskell2010
@@ -211,7 +211,7 @@ test-suite TestRegressions
         Time
     build-depends:
         base >=4.6.0.1 && <5,
-        base-compat -any,
+        base-compat,
         directory >=1.2.0.1 && <1.4,
         filepath >=1.3.0.1 && <1.6,
         hspec >=2.7.6,
@@ -223,7 +223,7 @@ test-suite TestRegressions
         time >=1.5 && <1.15,
         time-locale-compat >=0.1.1.3 && <0.2,
         tz >=0.0.0.5 && <0.2,
-        Tides -any
+        Tides,
     default-language: Haskell2010
     ghc-options:
        -Wall
